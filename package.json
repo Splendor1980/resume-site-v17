@@ -1,0 +1,23 @@
+{
+  "name": "resume-site",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Сайт-генератор резюме без опыта. Astro: статические SEO-страницы идей из data/ideas.json + интерактивный конструктор как отдельная страница-остров.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync:data": "node scripts/sync-data.mjs",
+    "prebuild": "node scripts/sync-data.mjs",
+    "test:e2e": "node scripts/test-constructor.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.1.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

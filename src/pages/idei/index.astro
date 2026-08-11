@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ideasJson from '../../../data/ideas.json';
+
+const items = ideasJson.items;
+const tags = [...new Set(items.flatMap((i) => i.tags || []))].sort();
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Все идеи для резюме без опыта',
+  itemListElement: items.map((i, idx) => ({
+    '@type': 'ListItem',
+    position: idx + 1,
+    name: i.activity_title || i.category,
+    url: `${(Astro.site?.href ?? '').replace(/\/$/, '')}/idei/${i.id}/`,
+  })),
+});
+---
+
+<BaseLayout
+  title="Все идеи для резюме без опыта — 103 связки «хобби → навыки → профессия»"
+  description="Полный список из 103 идей: чем увлекаешься → какие навыки из этого можно показать → на какую роль претендовать. Собрано по темам, бесплатно."
+  structuredData={structuredData}
+>
+  <Header />
+  <main>
+    <div class="wrap">
+      <div class="hero" style="padding:44px 0 24px; text-align:left;">
+        <span class="eyebrow">указатель</span>
+        <h1 style="text-align:left; margin-left:0;">Список из 103 идей</h1>
+        <p class="lead" style="margin-left:0;">
+          Каждая карточка на этом сайте — это готовый ответ «чем увлекаюсь → что из этого умею → кем могу работать».
+          Ниже — все записи базы, сгруппированы по темам.
+        </p>
+      </div>
+
+      {tags.map((tag) => {
+        const group = items.filter((i) => (i.tags || []).includes(tag));
+        return (
+          <section class="tag-group" id={ `tag-${tag}` }>
+            <h2>{tag} <span class="tag-chip">{group.length}</span></h2>
+            <div class="list-rows">
+              {group.map((i) => (
+                <a class="list-row" href={`/idei/${i.id}/`}>
+                  <span class="lr-t">{i.activity_title || i.category}</span>
+                  <span class="lr-roles">{(i.roles || []).slice(0, 2).join(' · ')}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

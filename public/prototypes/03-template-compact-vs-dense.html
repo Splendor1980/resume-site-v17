@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Шаблоны резюме — компактный vs плотный</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root{
+    --bg:#EEF2E7; --ink:#1E2B22; --ink-soft:#4A5A4E;
+    --coral:#FF6B54; --coral-deep:#E4523C;
+    --paper1:#FFF8EC; --line:rgba(30,43,34,0.14); --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; padding:32px 20px;}
+  .wrap{max-width:920px; margin:0 auto;}
+  h1{font-family:'Baloo 2',sans-serif; font-size:26px; text-align:center; margin-bottom:6px;}
+  .sub{text-align:center; color:var(--ink-soft); font-size:14px; margin-bottom:32px;}
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:720px){ .compare{grid-template-columns:1fr;} }
+  .col-label{font-family:'Space Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:8px;}
+  .sheet{background:var(--white); border-radius:8px; box-shadow:0 10px 26px -14px rgba(30,43,34,0.4); min-height:520px; overflow:hidden;}
+
+  /* compact */
+  .compact{display:flex;}
+  .compact .side{width:38%; background:var(--paper1); padding:18px 12px; display:flex; flex-direction:column; gap:16px; border-right:1px solid var(--line);}
+  .avatar{width:48px;height:48px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .side .name{font-weight:700; font-size:14px;}
+  .side .role{font-size:11px; color:var(--coral-deep); margin-top:2px;}
+  .label-sm{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+  .contact-row{font-size:11px; color:var(--ink-soft); display:flex; gap:5px; align-items:center; margin-bottom:4px;}
+  .bar{height:4px; background:var(--line); border-radius:2px; margin-top:3px;}
+  .bar span{display:block; height:100%; background:var(--coral); border-radius:2px;}
+  .pill{font-size:10px; background:#EAF3F6; color:var(--coral-deep); padding:3px 7px; border-radius:20px; display:inline-block; margin:0 4px 4px 0;}
+  .compact .main{flex:1; padding:18px 16px; display:flex; flex-direction:column; gap:16px;}
+  .compact .main .text{font-size:12.5px; line-height:1.55;}
+  .check-item{font-size:12.5px; display:flex; gap:6px; margin-bottom:6px;}
+  .footnote{margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); font-size:10.5px; color:var(--ink-soft);}
+
+  /* dense */
+  .dense{padding:18px 16px; display:flex; flex-direction:column; gap:14px;}
+  .dense .name{font-weight:700; font-size:14px;}
+  .dense .role{font-size:11px; color:var(--coral-deep); margin-top:2px;}
+  .dense .contacts{display:flex; gap:12px; font-size:10.5px; color:var(--ink-soft); margin-top:6px;}
+  .block{border-top:1px solid var(--line); padding-top:10px;}
+  .block .label-sm{margin-bottom:5px;}
+  .dense .text{font-size:11.5px; line-height:1.5;}
+  .proj{font-size:11.5px; margin-bottom:8px;}
+  .proj .t{font-weight:700;}
+  .proj .d{color:var(--ink-soft); margin-top:1px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .tag{font-size:10px; background:var(--paper1); padding:3px 7px; border-radius:5px; display:inline-block; margin:0 4px 4px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Один и тот же принцип, два шаблона</h1>
+  <div class="sub">Система сама выбирает вариант — по объёму того, что реально заполнил пользователь</div>
+
+  <div class="compare">
+    <div>
+      <div class="col-label">Компактный — под короткий текст</div>
+      <div class="sheet compact">
+        <div class="side">
+          <div class="avatar"><i class="ti ti-user"></i></div>
+          <div>
+            <div class="name">Имя Фамилия</div>
+            <div class="role">Видеооператор / монтаж</div>
+          </div>
+          <div>
+            <div class="label-sm">Контакты</div>
+            <div class="contact-row"><i class="ti ti-mail"></i>mail@example.com</div>
+            <div class="contact-row"><i class="ti ti-phone"></i>+7 900 000-00-00</div>
+          </div>
+          <div>
+            <div class="label-sm">Навыки</div>
+            <div style="font-size:11px;">Съёмка с дрона<div class="bar"><span style="width:85%"></span></div></div>
+            <div style="font-size:11px; margin-top:8px;">Видеомонтаж<div class="bar"><span style="width:65%"></span></div></div>
+            <div style="font-size:11px; margin-top:8px;">Работа с техникой<div class="bar"><span style="width:75%"></span></div></div>
+          </div>
+          <div>
+            <div class="label-sm">Интересы</div>
+            <span class="pill">Дроны</span><span class="pill">Видео</span><span class="pill">Фото</span>
+          </div>
+        </div>
+        <div class="main">
+          <div>
+            <div class="label-sm">О себе</div>
+            <div class="text">Два года снимаю видео с квадрокоптера — от настройки техники до монтажа.</div>
+          </div>
+          <div>
+            <div class="label-sm">Что предлагаю</div>
+            <div class="check-item"><i class="ti ti-check" style="color:var(--coral-deep)"></i>Готовые видео-примеры работ</div>
+            <div class="check-item"><i class="ti ti-check" style="color:var(--coral-deep)"></i>Быстрое обучение новому оборудованию</div>
+          </div>
+          <div>
+            <div class="label-sm">Образование</div>
+            <div class="text">Школа №12, 11 класс, 2026</div>
+          </div>
+          <div class="footnote">Мало текста — компенсируем сайдбаром, крупным шрифтом и воздухом</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="col-label">Плотный — под развёрнутый текст</div>
+      <div class="sheet dense">
+        <div>
+          <div class="name">Имя Фамилия</div>
+          <div class="role">Организатор мероприятий</div>
+          <div class="contacts">
+            <span><i class="ti ti-mail"></i> mail@example.com</span>
+            <span><i class="ti ti-phone"></i> +7 900 000-00-00</span>
+          </div>
+        </div>
+        <div class="block">
+          <div class="label-sm">О себе</div>
+          <div class="text">Опыта в найме нет, но два года я в активе курса — организовывала три мероприятия для 100+ человек: бюджет, площадка, координация волонтёров. Считаю это реальным проектным опытом, а не просто «студенческой активностью».</div>
+        </div>
+        <div class="block">
+          <div class="label-sm">Проектный опыт</div>
+          <div class="proj"><div class="t">Фестиваль факультета — 120 участников</div><div class="d">Бюджет, договорённость с площадкой, координация 8 волонтёров</div></div>
+          <div class="proj"><div class="t">Ведение соцсетей сообщества</div><div class="d">Рост подписчиков, контент-план, ответы аудитории</div></div>
+          <div class="proj"><div class="t">Актив курса, 3-й год</div><div class="d">Организация внутренних мероприятий и опросов группы</div></div>
+        </div>
+        <div class="block two-col">
+          <div>
+            <div class="label-sm">Навыки</div>
+            <span class="tag">Бюджетирование</span><span class="tag">Координация</span><span class="tag">SMM</span>
+          </div>
+          <div>
+            <div class="label-sm">Образование</div>
+            <div class="text">РГГУ, 3 курс, менеджмент</div>
+          </div>
+        </div>
+        <div class="footnote">Много контента — держим строгую сетку и мелкий кегль, без лишнего воздуха</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

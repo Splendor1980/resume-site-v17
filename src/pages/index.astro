@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ideasJson from '../../data/ideas.json';
+const items = ideasJson.items;
+const tags = [...new Set(items.flatMap((i) => i.tags || []))].sort();
+
+const featuredIds = [
+  'strategy_games',
+  'drone_flying',
+  'video_editing',
+  'languages_learning',
+  'team_sport',
+  'volunteering',
+];
+const featured = featuredIds
+  .map((id) => items.find((i) => i.id === id))
+  .filter(Boolean);
+
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+
+const faq = [
+  {
+    q: 'Что писать школьнику или студенту в резюме, если нет опыта работы?',
+    a: 'Опыт чаще есть — просто он прячется не в трудовой книжке, а в том, чем вы занимаетесь за её пределами: командные игры, ведение канала, помощь родителям, спорт, кружки, хобби. На этом сайте такие занятия разложены на навыки и подходящие роли — остаётся выбрать и вписать.',
+  },
+  {
+    q: 'Резюме без опыта работы вообще кому-то нужно?',
+    a: 'Да. Работодатель ищет не «опыт», а доказательства, что вы умеете делать дело: общаться, планировать, доводить до конца, работать в команде. Все эти умения выводятся из хобби и интересов — нужно только правильно их сформулировать.',
+  },
+  {
+    q: 'Это бесплатно? ИИ тут есть?',
+    a: 'Сайт бесплатный и работает по собственной базе из 103 связок «интерес → навыки → профессия» прямо в вашем браузере — внешний ИИ не вызывается, регистрация не нужна.',
+  },
+  {
+    q: 'Как скачать готовое резюме?',
+    a: 'Добавьте минимум 2 идеи в конструкторе, заполните пару полей и нажмите «Скачать PDF» — браузер откроет окно печати, где нужно выбрать «Сохранить как PDF». Файл останется у вас на компьютере.',
+  },
+];
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      name: 'Резюме без опыта',
+      inLanguage: 'ru-RU',
+      url: site + '/',
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ],
+});
+---
+
+<BaseLayout
+  title="Резюме без опыта работы: 100+ идей, что написать школьнику и студенту"
+  description="Конструктор резюме без опыта для школьников, студентов и тех, кто ищет первую работу. 103 идеи «хобби → навыки → профессия», PDF за 10 минут, бесплатно и без ИИ."
+  structuredData={structuredData}
+>
+  <Header />
+  <main>
+    <section class="hero">
+      <span class="eyebrow">резюме без опыта · бесплатно · без ИИ</span>
+      <h1>Резюме без опыта работы: что написать школьнику и студенту</h1>
+      <p class="lead">
+        Опыт чаще есть — просто он прячется в хобби и интересах. Этот сайт видит, что у тебя уже умеют руки и голова,
+        и превращает это в готовое резюме: выбери идею — навыки и подходящие роли подберутся сами.
+      </p>
+      <div class="hero-actions">
+        <a class="cta-btn" href="/konstruktor/">Собрать резюме за 10 минут →</a>
+        <a class="cta-btn dark" href="/idei/">Смотреть все 103 идеи</a>
+      </div>
+      <div class="hero-stats">
+        <span class="stat-pill">103 идеи</span>
+        <span class="stat-pill">{tags.length} тем</span>
+        <span class="stat-pill">PDF на 1 страницу</span>
+        <span class="stat-pill">без регистрации</span>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <section class="section">
+        <div class="section-head">
+          <h2>Как это работает</h2>
+        </div>
+        <div class="mini-grid">
+          <div class="mini-card">
+            <div class="mc-eyebrow">шаг 1</div>
+            <div class="mc-title">Выбери 2–3 занятия из списка</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin:8px 0 0;">
+              Игры, сериалы, спорт, кулинария, техника — подходит всё, чем ты реально занимаешься.
+            </p>
+          </div>
+          <div class="mini-card">
+            <div class="mc-eyebrow">шаг 2</div>
+            <div class="mc-title">Резюме соберётся само</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin:8px 0 0;">
+              Навыки, «О себе» и проектный опыт подставятся автоматически — останется поправить пару полей.
+            </p>
+          </div>
+          <div class="mini-card">
+            <div class="mc-eyebrow">шаг 3</div>
+            <div class="mc-title">Скачай PDF и отправляй</div>
+            <p style="font-size:13px; color:var(--ink-soft); margin:8px 0 0;">
+              Один клик — и резюме готово к отправке на hh.ru или в первой компании, куда идёшь.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="idei">
+        <div class="section-head">
+          <h2>Популярные идеи</h2>
+          <a class="all-link" href="/idei/">Все 103 →</a>
+        </div>
+        <div class="mini-grid">
+          {featured.map((i) => (
+            <a class="mini-card" href={`/idei/${i.id}/`}>
+              <div class="mc-eyebrow">{i.category}</div>
+              <div class="mc-title">{i.activity_title || i.category}</div>
+              {(i.roles || []).length > 0 && (
+                <p style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0;">
+                  {(i.roles || []).slice(0, 2).join(' · ')}
+                </p>
+              )}
+              <div class="mc-tags">
+                {(i.tags || []).map((t) => <span class="mc-tag">{t}</span>)}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Все темы</h2>
+          <a class="all-link" href="/idei/">Развернуть список →</a>
+        </div>
+        <div class="example-chips">
+          {tags.map((t) => <a class="example-chip" href={`/idei/#tag-${t}`}>{t}</a>)}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Частые вопросы</h2>
+        </div>
+        {faq.map((f) => (
+          <div class="idea-panel" style="padding:16px 20px;">
+            <h2 style="font-size:15px; margin-bottom:6px;">{f.q}</h2>
+            <p style="margin:0; font-size:14px; color:var(--ink-soft);">{f.a}</p>
+          </div>
+        ))}
+      </section>
+
+      <div class="idea-cta">
+        <p>
+          <b>Не знаешь, что писать в своё резюме?</b><br />
+          10 минут — и у тебя готовое резюме с навыками из твоих реальных интересов.
+        </p>
+        <a class="cta-btn" href="/konstruktor/">Открыть конструктор →</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

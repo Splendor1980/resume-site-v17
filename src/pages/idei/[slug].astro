@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ideasJson from '../../../data/ideas.json';
+
+interface Props {
+  item: (typeof ideasJson.items)[number];
+}
+
+export function getStaticPaths() {
+  return ideasJson.items.map((item) => ({
+    params: { slug: item.id },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+
+const category = item.category || '';
+const tags = item.tags || [];
+const roles = item.roles || [];
+const examples = item.examples_now || [];
+const reframed = item.skills_reframed && item.skills_reframed.length ? item.skills_reframed : item.skills || [];
+const title = item.activity_title || category || item.id;
+const metaDescription = [
+  item.resume_bullet,
+  item.employer_value,
+  `Подойдёт: ${roles.slice(0, 3).join(', ')}`,
+]
+  .filter(Boolean)
+  .join(' ')
+  .replace(/\s+/g, ' ')
+  .slice(0, 158);
+
+const related = ideasJson.items
+  .filter((other) => other.id !== item.id && (other.tags || []).some((t) => tags.includes(t)))
+  .slice(0, 4);
+
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+const pageUrl = `${site}/idei/${item.id}/`;
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: metaDescription || title,
+  keywords: tags.join(', '),
+  inLanguage: 'ru-RU',
+  mainEntityOfPage: pageUrl,
+  author: { '@type': 'Organization', name: 'Резюме без опыта' },
+  publisher: { '@type': 'Organization', name: 'Резюме без опыта' },
+});
+---
+
+<BaseLayout title={`${title} — что писать в резюме без опыта`} description={metaDescription || title} ogType="article" structuredData={structuredData}>
+  <Header />
+  <main>
+    <div class="wrap" style="padding-top:8px;">
+      <p class="crumbs">
+        <a href="/">Главная</a> / <a href="/idei/">Все идеи</a> / {category}
+      </p>
+    </div>
+
+    <section class="idea-hero">
+      <span class="eyebrow">{category}</span>
+      <h1>{title}</h1>
+      {item.resume_bullet && <p class="idea-lede">{item.resume_bullet}</p>}
+    </section>
+
+    <div class="idea-body">
+      {item.comment && (
+        <div class="idea-panel">
+          <h2>🎯 Почему это интересно работодателю</h2>
+          <p style="margin:0; font-size:14.5px; line-height:1.65;">{item.comment}</p>
+        </div>
+      )}
+
+      <div class="idea-panel">
+        <div class="idea-facts">
+          <div class="fact-kv">
+            <div class="k">Навыки</div>
+            <div class="v">
+              {reframed.length > 0 && (
+                <ul>
+                  {reframed.flatMap((skill) => skill.split(';')).map((s) => s.trim()).filter(Boolean).map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {roles.length > 0 && (
+            <div class="fact-kv">
+              <div class="k">Куда подойдёт</div>
+              <div class="v"><ul>{roles.map((r) => <li>{r}</li>)}</ul></div>
+            </div>
+          )}
+
+          {examples.length > 0 && (
+            <div class="fact-kv">
+              <div class="k">О чём речь</div>
+              <div class="v">
+                <div class="example-chips">
+                  {examples.map((ex) => <span class="example-chip">{ex}</span>)}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {item.employer_value && (
+            <div class="fact-kv">
+              <div class="k">Ценность</div>
+              <div class="v"><div class="value-block">💼 {item.employer_value}</div></div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {item.research && (
+        <div class="research-block">
+          <div class="rb-label">🔬 Что говорят исследования</div>
+          <div>{item.research.summary}</div>
+          {item.research.caveat && <div class="rb-caveat">⚠️ {item.research.caveat}</div>}
+          <div class="rb-source">
+            Источник: <a href={item.research.source_url} target="_blank" rel="noopener">{item.research.source_name}</a>
+          </div>
+        </div>
+      )}
+
+      <div class="idea-cta">
+        <p>
+          <b>Готов вписать это в резюме?</b><br />
+          В конструкторе это одна кнопка — резюме соберётся само, останется скачать PDF.
+        </p>
+        <a class="cta-btn" href="/konstruktor/">Открыть конструктор →</a>
+      </div>
+
+      {related.length > 0 && (
+        <div class="related">
+          <h2>Похожие идеи</h2>
+          <div class="mini-grid">
+            {related.map((idea) => (
+              <a class="mini-card" href={`/idei/${idea.id}/`}>
+                <div class="mc-eyebrow">{idea.category}</div>
+                <div class="mc-title">{idea.activity_title || idea.category}</div>
+                <div class="mc-tags">
+                  {(idea.tags || []).map((t) => <span class="mc-tag">{t}</span>)}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

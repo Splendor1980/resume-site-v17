@@ -1,0 +1,53 @@
+---
+import '../styles/seo.css';
+import Metrika from '../components/Metrika.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  ogType?: string;
+  structuredData?: string;
+}
+
+const { title, description, ogType = 'website', structuredData } = Astro.props;
+
+// Сайт целиком ориентирован на RU-аудиторию; страницы сгенерированы и обработаны статически.
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+const path = Astro.url.pathname;
+const canonical = Astro.url.pathname === '/' ? site + '/' : site + path;
+
+const ogImage = '/og-cover.svg';
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap';
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Резюме без опыта — конструктор и 100+ идей" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={site + ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontsHref} rel="stylesheet" />
+
+    {structuredData ? <script is:inline type="application/ld+json" set:html={structuredData} /> : null}
+    <Metrika />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,33 @@
+---
+import Constructor from '../components/Constructor.astro';
+import Metrika from '../components/Metrika.astro';
+
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+const title = 'Конструктор резюме без опыта работы — собери резюме за 10 минут';
+const description =
+  'Интерактивный конструктор резюме для школьников и студентов: выбери из 103 готовых связок «хобби → навыки → профессия», и резюме соберётся само — останется скачать PDF. Без ИИ и без регистрации.';
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap';
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={site + '/konstruktor/'} />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontsHref} rel="stylesheet" />
+    <!-- Конструктор — «остров» интерактивности на Astro: вся остальная часть сайта —
+         статический HTML с готовым текстовым контентом, который индексируется поисковиками. -->
+    <Metrika />
+  </head>
+  <body>
+    <Constructor />
+  </body>
+</html>

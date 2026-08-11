@@ -1,0 +1,219 @@
+/* Общие стили SEO-страниц (лендинг, /idei/*). Придерживается палитры конструктора. */
+:root {
+  --bg: #eef2e7; --ink: #1e2b22; --ink-soft: #4a5a4e;
+  --coral: #ff6b54; --coral-deep: #e4523c;
+  --paper1: #fff8ec; --paper2: #ffefe4; --paper3: #eaf3f6;
+  --line: rgba(30, 43, 34, 0.14); --white: #ffffff;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+body.dark-bg { background: var(--ink); }
+
+a { color: var(--coral-deep); }
+img { max-width: 100%; }
+
+/* ---------- шапка ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(238, 242, 231, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+.site-nav {
+  max-width: 1080px; margin: 0 auto; padding: 12px 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.site-brand {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 18px;
+  color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.site-brand .logo-mark {
+  width: 30px; height: 30px; border-radius: 8px; background: var(--coral);
+  color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.site-nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.site-nav-links a {
+  font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  text-decoration: none; padding: 7px 12px; border-radius: 8px;
+}
+.site-nav-links a:hover { color: var(--ink); background: rgba(30,43,34,0.06); }
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--coral); color: #fff !important; border-radius: 10px;
+  font-weight: 800; font-size: 13.5px; padding: 10px 16px; text-decoration: none;
+  box-shadow: 0 8px 18px -10px rgba(228, 82, 60, 0.7);
+  transition: background .15s ease, transform .15s ease;
+}
+.cta-btn:hover { background: var(--coral-deep); transform: translateY(-1px); }
+.cta-btn.dark { background: var(--ink); box-shadow: 0 8px 18px -10px rgba(30,43,34,0.7); }
+.cta-btn.dark:hover { background: #2c4034; }
+
+/* ---------- hero ---------- */
+.hero {
+  max-width: 1080px; margin: 0 auto; padding: 56px 22px 34px;
+  text-align: center;
+}
+.hero .eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; background: var(--ink); color: var(--paper1);
+  padding: 5px 14px; border-radius: 20px; display: inline-block; margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: clamp(28px, 5vw, 46px);
+  margin: 0 auto 14px; max-width: 780px; line-height: 1.15;
+}
+.hero p.lead {
+  font-size: 16.5px; color: var(--ink-soft); max-width: 640px; margin: 0 auto 26px; line-height: 1.6;
+}
+.hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-stats {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px;
+}
+.stat-pill {
+  font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+  background: var(--paper1); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
+}
+
+/* ---------- секции списков ---------- */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 22px 60px; }
+.section { margin-bottom: 40px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.section h2 {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 22px; margin: 0;
+}
+.section .section-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+.section .all-link { font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+/* сетка мини-карточек идей */
+.mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.mini-card {
+  background: var(--paper1); border: 1px solid var(--line); border-radius: 10px;
+  padding: 15px 16px; text-decoration: none; color: var(--ink);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.mini-card:nth-child(3n+2) { background: var(--paper2); }
+.mini-card:nth-child(3n) { background: var(--paper3); }
+.mini-card:hover { transform: translateY(-2px); box-shadow: 0 12px 22px -14px rgba(30,43,34,0.35); }
+.mini-card .mc-eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--ink-soft); margin-bottom: 5px;
+}
+.mini-card .mc-title { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; line-height: 1.3; }
+.mini-card .mc-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.mini-card .mc-tag {
+  font-family: 'Space Mono', monospace; font-size: 10px; padding: 2px 7px;
+  border-radius: 5px; background: rgba(30,43,34,0.07); color: var(--ink-soft);
+}
+
+/* ---------- страница идеи ---------- */
+.crumbs { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 18px; }
+.crumbs a { color: inherit; text-decoration: none; }
+.crumbs a:hover { color: var(--coral-deep); }
+.idea-hero {
+  max-width: 860px; margin: 0 auto; padding: 44px 22px 20px;
+}
+.idea-hero .eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 11.5px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--coral-deep); font-weight: 700; margin-bottom: 12px; display: block;
+}
+.idea-hero h1 {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: clamp(26px, 4.4vw, 40px);
+  margin: 0 0 16px; line-height: 1.18;
+}
+.idea-hero .idea-lede { font-size: 16px; color: var(--ink-soft); max-width: 680px; margin: 0; }
+
+.idea-body { max-width: 860px; margin: 0 auto; padding: 14px 22px 70px; }
+.idea-panel {
+  background: var(--paper1); border: 1px solid var(--line); border-radius: 12px;
+  padding: 22px 24px; margin-bottom: 16px;
+}
+.idea-panel h2 {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 17px; margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.idea-facts { display: grid; gap: 12px; }
+.fact-kv { display: flex; gap: 10px; align-items: flex-start; }
+.fact-kv .k {
+  font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--ink-soft); min-width: 118px; padding-top: 2px; flex-shrink: 0;
+}
+.fact-kv .v { font-size: 14px; }
+.fact-kv .v ul { margin: 0; padding-left: 18px; }
+.fact-kv .v li { margin-bottom: 4px; }
+.fact-kv .v li::marker { color: var(--coral-deep); }
+.example-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.example-chip {
+  font-size: 12.5px; font-weight: 600; background: var(--paper3);
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; color: var(--ink);
+}
+.value-block {
+  background: rgba(255,255,255,0.6); border-left: 3px solid var(--coral);
+  border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55;
+}
+.research-block {
+  background: var(--paper3); border: 1px solid var(--line); border-left: 3px solid #4e8b4e;
+  border-radius: 8px; padding: 14px 16px; font-size: 13.5px; line-height: 1.6;
+}
+.research-block .rb-label {
+  font-family: 'Space Mono', monospace; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: .05em; color: #4e8b4e; margin-bottom: 6px; font-weight: 700;
+}
+.research-block .rb-caveat { color: var(--ink-soft); font-style: italic; margin: 6px 0; font-size: 12.5px; }
+.research-block .rb-source { font-size: 12px; }
+.idea-cta {
+  background: var(--ink); border-radius: 12px; color: #fff; padding: 22px 24px;
+  margin-top: 20px; display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; flex-wrap: wrap;
+}
+.idea-cta p { margin: 0; font-size: 14.5px; max-width: 460px; }
+.idea-cta b { font-family: 'Baloo 2', sans-serif; font-size: 16px; }
+
+.related { margin-top: 26px; }
+.related h2 { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 17px; margin: 0 0 12px; }
+
+/* ---------- подвал ---------- */
+.site-footer {
+  border-top: 1px solid var(--line); background: var(--paper1);
+  padding: 30px 22px 40px;
+}
+.footer-inner { max-width: 1080px; margin: 0 auto; display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-inner p { font-size: 13px; color: var(--ink-soft); margin: 0 0 6px; }
+.footer-inner .footer-links a { font-size: 13px; text-decoration: none; color: var(--ink-soft); margin-right: 14px; }
+.footer-inner .footer-links a:hover { color: var(--coral-deep); }
+
+/* ---------- страница списка идей ---------- */
+.tag-group { margin-bottom: 30px; }
+.tag-group h2 {
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 17px; margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.tag-group h2 .tag-chip {
+  font-family: 'Space Mono', monospace; font-size: 10px; background: var(--paper3);
+  color: var(--coral-deep); padding: 3px 9px; border-radius: 20px;
+}
+.list-rows { display: flex; flex-direction: column; gap: 8px; }
+.list-row {
+  background: var(--paper1); border: 1px solid var(--line); border-radius: 8px;
+  padding: 11px 15px; text-decoration: none; color: var(--ink); font-size: 14px;
+  display: flex; justify-content: space-between; gap: 12px; align-items: center;
+}
+.list-row:nth-child(3n+2) { background: var(--paper2); }
+.list-row:nth-child(3n) { background: var(--paper3); }
+.list-row:hover { border-color: var(--coral); }
+.list-row .lr-t { font-weight: 600; }
+.list-row .lr-roles { font-size: 12px; color: var(--ink-soft); text-align: right; }
+
+@media (max-width: 620px) {
+  .site-nav { flex-wrap: wrap; }
+  .idea-facts { gap: 14px; }
+  .fact-kv { flex-direction: column; gap: 2px; }
+}

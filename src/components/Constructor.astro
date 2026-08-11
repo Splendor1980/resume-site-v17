@@ -1,0 +1,1161 @@
+---
+// Интерактивный конструктор резюме — «остров», перенесённый из прототипа index.html
+// почти без изменений (CSS, разметка и логика сохранены). Изменения по сравнению с
+// прототипом: fetch и ссылки на черновики сделаны абсолютными (страница живёт на /konstruktor/).
+// Почему не переписан на фреймворк: логика отлажена и проверена Playwright-тестами,
+// полностью переносить её в React/Vue было бы большим риском ради нулевой пользы.
+---
+
+<style is:global>
+  :root{
+    --bg: #EEF2E7; --ink: #1E2B22; --ink-soft: #4A5A4E;
+    --coral: #FF6B54; --coral-deep: #E4523C;
+    --paper1: #FFF8EC; --paper2: #FFEFE4; --paper3: #EAF3F6;
+    --line: rgba(30,43,34,0.14); --white: #FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
+
+  /* резюме-колонка увеличена ~в 1.6 раза (было minmax(240,300)) */
+  .layout{display:grid; grid-template-columns: minmax(320px, min(34vw, 560px)) 1fr; min-height:100vh;}
+  @media (max-width:760px){
+    .layout{grid-template-columns:1fr;}
+    .resume-pane{order:2; position:static; max-height:none;}
+    .board-pane{order:1;}
+  }
+
+  .data-warning{display:none; background:#FFEDEA; border-bottom:1px solid #F3B9AE; color:#8C3225; font-size:13px; padding:10px 20px; text-align:center;}
+  .data-warning.show{display:block;}
+
+  /* LEFT: RESUME */
+  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); position:sticky; top:0; max-height:100vh; border-right:1px solid var(--line); display:flex; flex-direction:column;}
+  .resume-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:26px 20px 16px;}
+  .resume-footer{flex-shrink:0; padding:14px 20px 22px; border-top:1px solid rgba(30,43,34,0.18); background:rgba(216,225,203,0.6); backdrop-filter:blur(2px);}
+  .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
+  .sheet{background:var(--white); border-radius:6px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:560px; overflow:hidden;}
+  .sheet .placeholder{color:#B7BFB2; font-style:italic;}
+  .label-sm{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;}
+
+  /* поля ручного ввода прямо в резюме */
+  .field-input{border:none; border-bottom:1px dashed var(--line); background:transparent; font-family:inherit; color:inherit; width:100%; padding:2px 0 4px; }
+  .field-input:focus{outline:none; border-bottom-color:var(--coral-deep); border-bottom-style:solid;}
+  .field-input::placeholder{color:#B7BFB2; font-style:italic; font-weight:400;}
+  .name-input{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:19px;}
+  .role-input{font-size:13.5px; color:var(--coral-deep); font-weight:700; margin-top:4px;}
+  .small-input{font-size:12px; color:var(--ink-soft);}
+
+  .sheet.compact{display:flex; padding:0;}
+  .sheet.compact .side{width:42%; background:var(--paper1); padding:20px 16px; display:flex; flex-direction:column; gap:18px; border-right:1px solid var(--line);}
+  .sheet.compact .main{flex:1; padding:20px 18px; display:flex; flex-direction:column; gap:18px;}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .contact-row{margin-bottom:6px;}
+  .skill-bar-item{font-size:12px; margin-bottom:10px;}
+  .bar{height:4px; background:var(--line); border-radius:2px; margin-top:4px;}
+  .bar span{display:block; height:100%; background:var(--coral); border-radius:2px;}
+  .pill{font-size:11px; background:var(--paper3); color:var(--coral-deep); padding:4px 9px; border-radius:20px; display:inline-block; margin:0 5px 5px 0;}
+  .c-text{font-size:13.5px; line-height:1.6;}
+  .field-textarea{border:1px dashed var(--line); border-radius:6px; background:transparent; font-family:inherit; font-size:13.5px; line-height:1.6; color:inherit; width:100%; padding:8px 10px; resize:vertical; min-height:56px;}
+  .field-textarea:focus{outline:none; border-style:solid; border-color:var(--coral-deep);}
+  .field-textarea::placeholder{color:#B7BFB2; font-style:italic;}
+  .field-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;}
+  .reset-btn{font-family:'Space Mono',monospace; font-size:10px; background:none; border:none; color:var(--ink-soft); cursor:pointer; text-decoration:underline; padding:0;}
+  .reset-btn:hover{color:var(--coral-deep);}
+  .editable-wrap{position:relative;}
+  .editable-wrap.locked .field-textarea{filter:blur(5px); user-select:none;}
+  .lock-overlay-inline{position:absolute; left:0; right:0; top:24px; bottom:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11.5px; font-weight:700; color:var(--ink); background:rgba(255,248,236,0.55); border-radius:6px; padding:8px; line-height:1.4;}
+  .check-item{font-size:13px; margin-bottom:8px; display:flex; gap:7px;}
+  .footnote{margin-top:auto; padding-top:12px; border-top:1px dashed var(--line); font-size:11px; color:var(--ink-soft);}
+
+  .sheet.dense{display:flex; flex-direction:column; gap:16px; padding:24px 20px;}
+  .contacts-row{display:flex; gap:14px; margin-top:8px; flex-wrap:wrap;}
+  .contacts-row .field-input{width:auto; min-width:140px;}
+  .block{border-top:1px solid var(--line); padding-top:12px;}
+  .proj{font-size:13px; margin-bottom:10px;}
+  .proj .t{font-weight:700;}
+  .proj .d{color:var(--ink-soft); margin-top:2px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .tag{font-size:11px; background:var(--paper1); padding:4px 8px; border-radius:5px; display:inline-block; margin:0 5px 5px 0;}
+
+  .counter{margin-top:0; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
+  .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:13px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
+  .cta-lock.ready{opacity:1; pointer-events:auto; cursor:pointer;}
+  .cta-lock small{display:block; font-weight:400; font-size:11px; margin-top:3px; opacity:0.9;}
+  .pdf-hint{font-size:10.5px; color:var(--ink-soft); margin-top:8px; line-height:1.4; text-align:center;}
+
+  /* ---------- МОДАЛКА РАЗБЛОКИРОВКИ ---------- */
+  .unlock-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.45); z-index:200; display:none; align-items:center; justify-content:center; padding:20px;}
+  .unlock-overlay.open{display:flex;}
+  .unlock-modal{background:var(--bg); border-radius:14px; max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:28px 26px; position:relative; box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);}
+  .unlock-close{position:absolute; top:16px; right:16px; background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer;}
+  .unlock-eyebrow{font-family:'Space Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; background:var(--ink); color:var(--paper1); padding:5px 11px; border-radius:20px; display:inline-block;}
+  .unlock-modal h3{font-family:'Baloo 2',sans-serif; font-size:21px; margin:14px 0 8px;}
+  .unlock-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 18px;}
+  .unlock-tabs{display:flex; gap:6px; background:var(--paper1); border-radius:10px; padding:4px; margin-bottom:18px;}
+  .unlock-tab{flex:1; font-family:'Manrope',sans-serif; font-weight:700; font-size:12.5px; padding:9px 10px; border-radius:8px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer;}
+  .unlock-tab.active{background:var(--ink); color:#fff;}
+  .unlock-hint{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0 0 10px;}
+  .post-variants{display:flex; flex-direction:column; gap:8px;}
+  .post-variant{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:11px 13px;}
+  .post-variant .pv-text{font-size:12.5px; line-height:1.5; margin-bottom:8px; white-space:pre-wrap;}
+  .pv-copy-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer;}
+  .pv-copy-btn:hover{background:var(--paper2);}
+  .post-link-input{width:100%; font-family:'Manrope',sans-serif; font-size:13px; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--white); margin-bottom:10px;}
+  .unlock-confirm-btn{width:100%; font-family:'Manrope',sans-serif; font-weight:700; font-size:13.5px; background:var(--coral); color:#fff; border:none; border-radius:8px; padding:12px; cursor:pointer;}
+  .unlock-confirm-btn:hover{background:var(--coral-deep);}
+  .unlock-confirm-btn:disabled{opacity:0.5; cursor:default;}
+  .unlock-note{font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center; min-height:16px;}
+  .unlock-note.success{color:#3D7A3D; font-weight:700;}
+  .wait-timer{font-family:'Space Mono',monospace; font-size:38px; font-weight:700; text-align:center; color:var(--coral-deep); margin:18px 0 6px;}
+  .unlock-footnote{font-size:11px; color:var(--ink-soft); text-align:center; margin:16px 0 0; padding-top:14px; border-top:1px solid var(--line);}
+  .pre-print-steps{display:flex; flex-direction:column; gap:10px; margin:18px 0;}
+  .pre-print-step{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-size:13.5px; text-align:left; line-height:1.4;}
+
+  /* RIGHT */
+  .board-pane{padding:32px 28px 60px; position:relative;}
+  .board-header{max-width:640px; margin-bottom:18px;}
+  .board-header .eyebrow{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:var(--paper1); padding:5px 12px; border-radius:20px; display:inline-block;}
+  .board-header h2{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:24px; margin:14px 0 6px;}
+  .board-header p{color:var(--ink-soft); font-size:14px; line-height:1.5; margin:0;}
+
+  .mode-switch{display:inline-flex; background:var(--paper1); border:1px solid var(--line); border-radius:999px; padding:4px; margin:18px 0 22px; gap:2px;}
+  .mode-btn{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer; transition:all .15s ease;}
+  .mode-btn.active{background:var(--ink); color:#fff;}
+
+  .filters{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px;}
+  .chip{font-family:'Space Mono',monospace; font-size:12.5px; padding:7px 13px; border-radius:999px; border:2px solid var(--ink); background:var(--paper1); cursor:pointer; user-select:none;}
+  .chip.active{background:var(--coral); color:#fff; border-color:var(--coral-deep);}
+
+  .board{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px;}
+  .card{background:var(--paper1); border-radius:6px; padding:18px 16px 16px; box-shadow:0 8px 18px -10px rgba(30,43,34,0.3); border:1px solid var(--line); display:flex; flex-direction:column;}
+  .card:nth-child(3n+2){background:var(--paper2);}
+  .card:nth-child(3n){background:var(--paper3);}
+  .card-eyebrow{font-family:'Space Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:4px;}
+  .card h3{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 8px; line-height:1.25;}
+  .card h3 a{color:inherit; text-decoration:none;}
+  .card h3 a:hover{color:var(--coral-deep);}
+  .card-bullet{font-size:12.5px; line-height:1.5; color:var(--ink); margin:0 0 10px;}
+  .employer-value{font-size:11.5px; line-height:1.45; background:rgba(255,255,255,0.55); border-radius:6px; padding:8px 10px; margin-bottom:10px; color:var(--ink);}
+  .tag-row{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
+  .skill-tag{font-family:'Space Mono',monospace; font-size:10.5px; padding:3px 8px; border-radius:5px; background:rgba(30,43,34,0.07); color:var(--ink-soft);}
+  .roles{font-size:12.5px; margin:0 0 12px; list-style:none; padding:0;}
+  .roles li{padding-left:14px; position:relative; margin-bottom:4px;}
+  .roles li::before{content:"→"; position:absolute; left:0; color:var(--coral-deep); font-weight:700;}
+  .research-toggle{font-family:'Space Mono',monospace; font-size:10.5px; background:none; border:none; color:var(--ink-soft); cursor:pointer; padding:0; text-align:left; margin-bottom:8px; text-decoration:underline;}
+  .research-toggle:hover{color:var(--coral-deep);}
+  .research-box{display:none; background:var(--paper3); border-radius:6px; padding:10px 11px; margin-bottom:10px; font-size:11.5px; line-height:1.5;}
+  .research-box.open{display:block;}
+  .research-box .rb-summary{margin-bottom:6px;}
+  .research-box .rb-caveat{color:var(--ink-soft); font-style:italic; margin-bottom:6px;}
+  .research-box .rb-source{color:var(--coral-deep); font-size:10.5px;}
+  .research-box .rb-source a{color:inherit;}
+  .add-btn{margin-top:auto; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:9px; cursor:pointer;}
+  .add-btn:hover{background:var(--coral-deep);}
+  .add-btn.added{background:#7FA37F;}
+  .add-btn.added:hover{background:#C0504A;}
+  .empty-state{font-size:13.5px; color:var(--ink-soft); padding:20px 0;}
+
+  .role-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px;}
+  .role-chip{font-family:'Manrope',sans-serif; font-weight:600; font-size:13.5px; padding:11px 16px; border-radius:10px; background:var(--paper3); border:1px solid var(--line); cursor:pointer; transition:all .15s ease;}
+  .role-chip:hover{transform:translateY(-1px);}
+  .role-chip.active{background:var(--ink); color:#fff;}
+  .byrole-hint{font-size:13.5px; color:var(--ink); background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:12px 15px; margin-bottom:14px; line-height:1.5;}
+  .role-search{width:100%; max-width:420px; font-family:'Manrope',sans-serif; font-size:13.5px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--white); margin-bottom:16px;}
+  .role-search:focus{outline:none; border-color:var(--coral-deep);}
+  .role-chosen-chip{display:inline-flex; align-items:center; gap:10px; background:var(--ink); color:#fff; font-weight:600; font-size:13.5px; padding:10px 16px; border-radius:10px; margin-bottom:18px;}
+  .role-chosen-chip button{background:rgba(255,255,255,0.2); border:none; color:#fff; border-radius:6px; padding:3px 9px; font-size:12px; cursor:pointer; font-family:'Manrope',sans-serif;}
+  .role-chosen-chip button:hover{background:rgba(255,255,255,0.35);}
+  .skill-check{display:flex; align-items:flex-start; gap:10px; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
+  .skill-check.have{background:#EAF3EA; border-color:#B9D8B9;}
+  .skill-check .box{width:18px; height:18px; border-radius:5px; border:2px solid var(--ink-soft); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;}
+  .skill-check.have .box{background:#4E8B4E; border-color:#4E8B4E; color:#fff;}
+  .skill-check .txt .sk{font-weight:700; font-size:13.5px;}
+  .skill-check .txt .src{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+
+  .chat-wrap{max-width:640px;}
+  .chat-log{display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:120px;}
+  .msg{max-width:80%; padding:11px 15px; border-radius:14px; font-size:13.5px; line-height:1.5;}
+  .msg.bot{background:var(--paper1); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .msg.user{background:var(--ink); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .chat-input-row{display:flex; gap:8px; margin-bottom:14px;}
+  .chat-input-row input{flex:1; font-family:'Manrope',sans-serif; font-size:13.5px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--white);}
+  .chat-input-row button{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--coral); color:#fff; border:none; border-radius:10px; padding:0 18px; cursor:pointer;}
+  .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .quick-reply{font-family:'Manrope',sans-serif; font-size:12.5px; background:var(--paper3); border:1px solid var(--line); border-radius:999px; padding:7px 13px; cursor:pointer;}
+  .dontknow-btn{font-family:'Manrope',sans-serif; font-size:12.5px; background:none; border:1px dashed var(--ink-soft); color:var(--ink-soft); border-radius:999px; padding:7px 13px; cursor:pointer; margin-bottom:16px;}
+  .dontknow-btn:hover{border-color:var(--coral-deep); color:var(--coral-deep);}
+  .branch-panel{background:var(--paper3); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:16px;}
+  .branch-hint{font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;}
+  .branch-chips{display:flex; flex-wrap:wrap; gap:7px;}
+  .rec-card{background:var(--paper2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px;}
+  .rec-card .sk{font-weight:700; font-size:13.5px; margin-bottom:3px;}
+  .rec-card .why{font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;}
+  .ai-badge{font-family:'Space Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
+  .ai-badge .dot{width:6px; height:6px; border-radius:50%; background:#4E8B4E;}
+
+  #traitBox{margin-bottom:18px;}
+  .trait-card{background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:13px 15px; margin-bottom:10px;}
+  .trait-label{font-family:'Space Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--coral-deep); margin-bottom:5px; display:flex; align-items:center; gap:5px;}
+  .trait-text{font-size:13px; line-height:1.55; color:var(--ink);}
+
+  .gear-btn{position:fixed; top:18px; right:18px; z-index:50; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer; box-shadow:0 6px 16px -8px rgba(30,43,34,0.4); display:flex; align-items:center; justify-content:center; transition:transform .15s ease, color .15s ease;}
+  .gear-btn:hover{transform:rotate(25deg); color:var(--coral-deep);}
+  .drawer-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99; opacity:0; pointer-events:none; transition:opacity .2s ease;}
+  .drawer-overlay.open{opacity:1; pointer-events:auto;}
+  .drawer{position:fixed; top:0; right:0; height:100vh; width:min(340px, 88vw); background:var(--bg); z-index:100; padding:24px 20px; transform:translateX(100%); transition:transform .25s ease; overflow-y:auto; box-shadow:-14px 0 30px -18px rgba(30,43,34,0.5);}
+  .drawer-overlay.open .drawer{transform:translateX(0);}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .drawer-close{background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer;}
+  .drawer h3{font-family:'Baloo 2',sans-serif; font-size:17px; margin:0 0 6px;}
+  .drawer-sub{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:18px;}
+  .drawer-list{display:flex; flex-direction:column; gap:10px; margin-bottom:22px;}
+  .d-card{display:block; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; text-decoration:none; color:var(--ink); font-size:13px; line-height:1.4;}
+  .d-card:hover{background:var(--paper2);}
+  .drawer-foot{font-size:11.5px; color:var(--ink-soft); line-height:1.7; border-top:1px solid var(--line); padding-top:14px;}
+  .drawer-foot a{color:var(--coral-deep);}
+
+  /* ---------- ПЕЧАТЬ / PDF ---------- */
+  #printSheet{display:none;}
+  @media print{
+    body > *:not(#printSheet){display:none !important;}
+    #printSheet{
+      display:block; width:100%; margin:0; padding:16mm 18mm; box-sizing:border-box;
+      font-family:'Manrope',sans-serif; color:#1E2B22;
+    }
+    .p-name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22pt;}
+    .p-role{font-size:13pt; color:#E4523C; font-weight:700; margin-top:2mm;}
+    .p-contacts{font-size:10pt; color:#4A5A4E; margin-top:2mm;}
+    .p-section{margin-top:6mm;}
+    .p-label{font-family:'Space Mono',monospace; font-size:9pt; text-transform:uppercase; letter-spacing:.05em; color:#4A5A4E; margin-bottom:2mm; border-bottom:0.5pt solid #ccc; padding-bottom:1.5mm; break-after:avoid;}
+    .p-text{font-size:11pt; line-height:1.5; white-space:pre-wrap;}
+    .p-proj{font-size:11pt; line-height:1.5; margin-bottom:3mm; break-inside:avoid;}
+    .p-tags span{display:inline-block; margin:0 4mm 2mm 0;}
+    @page{size:A4; margin:0;}
+  }
+</style>
+
+<div class="data-warning" id="dataWarning">
+  Не удалось загрузить базу идей (/data/ideas.json). Открой сайт не «двойным кликом с диска», а через локальный сервер
+  (<code>npm run dev</code> в корне проекта) или опубликованную версию.
+</div>
+
+<button class="gear-btn" id="gearBtn" aria-label="Черновики и данные проекта">⚙</button>
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="eyebrow" style="font-size:10.5px;">внутреннее</span>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <h3>Черновики и данные</h3>
+    <p class="drawer-sub">Более ранние наброски, оставлены для справки — реальный посетитель сайта их не должен видеть, здесь только для нас.</p>
+    <div class="drawer-list">
+      <a class="d-card" href="/prototypes/01-cards-board.html">01 · Лента карточек с фильтром по тегам</a>
+      <a class="d-card" href="/prototypes/02-builder-split-screen.html">02 · Резюме слева + карточки справа (первая версия, статичный шаблон)</a>
+      <a class="d-card" href="/prototypes/03-template-compact-vs-dense.html">03 · Компактный vs плотный шаблон (статичное сравнение, отсюда взят дизайн)</a>
+      <a class="d-card" href="/prototypes/04-mode-switcher.html">04 · Предыдущая версия главной (три режима, статичное резюме, захардкоженные ~20 карточек)</a>
+    </div>
+    <div class="drawer-foot">
+      Данные: <a href="/data/ideas.json">ideas.json</a> · <a href="/data/about-snippets.json">about-snippets.json</a><br>
+      Промт ИИ-ассистента (на будущее, пока не подключён): <a href="/prototypes/05-ai-assistant-system-prompt.md">05-ai-assistant-system-prompt.md</a><br>
+      Подробности решений: <a href="/README.md">README</a>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <aside class="resume-pane">
+    <div class="resume-scroll">
+      <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
+      <div class="sheet compact" id="sheetContainer"></div>
+    </div>
+    <div class="resume-footer">
+      <div class="counter" id="counter">Добавлено идей: 0</div>
+      <button class="cta-lock" id="ctaLock">📄 Скачать PDF
+        <small>откроется после 2+ идей</small>
+      </button>
+      <div class="pdf-hint">Файл сохраняется через системное окно печати браузера — подробности покажем перед открытием.</div>
+    </div>
+  </aside>
+
+  <!-- Модалка выбора: два равноценных пути — мягкая механика для пробного запуска -->
+  <div class="unlock-overlay" id="unlockOverlay">
+    <div class="unlock-modal">
+      <button class="unlock-close" id="unlockClose">✕</button>
+      <div class="unlock-eyebrow">пока сайт тестовый и бесплатный</div>
+      <h3>Секунду, прежде чем скачать 🙂</h3>
+      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее — оба варианта работают одинаково честно.</p>
+
+      <div class="unlock-tabs">
+        <button class="unlock-tab active" data-tab="share">Поделиться и скачать сразу</button>
+        <button class="unlock-tab" data-tab="wait">Просто подождать 10 минут</button>
+      </div>
+
+      <div id="unlockShareTab" class="unlock-tab-content">
+        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене:</p>
+        <div class="post-variants" id="postVariants"></div>
+        <p class="unlock-hint" style="margin-top:14px;">Опубликовал(а)? Вставь сюда ссылку на пост:</p>
+        <input type="text" id="postLinkInput" class="post-link-input" placeholder="https://vk.com/wall... или https://dzen.ru/...">
+        <button class="unlock-confirm-btn" id="confirmShareBtn">Готово, разблокировать</button>
+        <div class="unlock-note" id="shareNote"></div>
+      </div>
+
+      <div id="unlockWaitTab" class="unlock-tab-content" style="display:none;">
+        <p class="unlock-hint">Тоже сработает — без всяких условий. Можно оставить вкладку открытой или просто зайти позже.</p>
+        <div class="wait-timer" id="waitTimer">10:00</div>
+        <div class="unlock-note" id="waitNote">Таймер пошёл — можно продолжать заполнять резюме, он не остановится.</div>
+      </div>
+
+      <p class="unlock-footnote">Доступ действует 24 часа с момента разблокировки — потом нужно будет открыть заново одним из способов выше.</p>
+    </div>
+  </div>
+
+  <div class="unlock-overlay" id="prePrintOverlay">
+    <div class="unlock-modal" style="max-width:420px; text-align:center;">
+      <div class="unlock-eyebrow">последний шаг</div>
+      <h3>Сейчас откроется окно печати браузера</h3>
+      <div class="pre-print-steps">
+        <div class="pre-print-step">1️⃣ В списке принтеров выбери <b>«Сохранить как PDF»</b></div>
+        <div class="pre-print-step">2️⃣ Нажми <b>«Сохранить»</b> — и файл у тебя на компьютере</div>
+      </div>
+      <p class="unlock-hint" style="margin-top:10px;">Если сверху/снизу листа появится дата или ссылка — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</p>
+      <button class="unlock-confirm-btn" id="prePrintGoBtn">Понял, открыть окно печати →</button>
+    </div>
+  </div>
+
+  <section class="board-pane">
+    <div class="board-header">
+      <span class="eyebrow">шаг 1 · вдохновение</span>
+      <h2 id="headerTitle">Листай и нажимай «Добавить в резюме»</h2>
+      <p id="headerSub">Резюме слева заполняется само. Ничего не нужно печатать вручную.</p>
+    </div>
+
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="browse">Листай и собирай</button>
+      <button class="mode-btn" data-mode="byrole">Навыки под профессию</button>
+      <button class="mode-btn" data-mode="ai">Помощник-подсказчик</button>
+    </div>
+
+    <div id="browseSection">
+      <div class="filters" id="filters"></div>
+      <div class="board" id="board"></div>
+    </div>
+
+    <div id="byRoleSection" style="display:none;">
+      <div class="byrole-hint">👆 Найди профессию (поиском или в списке) — покажем навыки, которые для неё пригодятся.</div>
+      <input type="text" id="roleSearch" class="role-search" placeholder="🔍 Начни печатать профессию, например «фото» или «стажёр»...">
+      <div id="roleChosen" style="display:none;"></div>
+      <div class="role-grid" id="roleGrid"></div>
+      <div id="roleResult"></div>
+    </div>
+
+    <div id="aiSection" style="display:none;">
+      <div class="ai-badge"><span class="dot"></span>подсказчик работает локально, по нашей базе — без внешнего ИИ и без затрат на сервер</div>
+      <div id="traitBox" style="display:none;"></div>
+      <div class="chat-wrap">
+        <div class="chat-log" id="chatLog"></div>
+        <div class="quick-replies" id="quickReplies"></div>
+        <button class="dontknow-btn" id="dontKnowBtn">🤔 Не знаю, с чего начать — покажи по темам</button>
+        <div class="branch-panel" id="branchPanel" style="display:none;"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Напиши ответ...">
+          <button id="chatSend">Отправить</button>
+        </div>
+        <div id="recBox"></div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- Скрытый "чистый" слой для печати/PDF — вне .layout, чтобы можно было независимо
+     скрыть весь .layout и показать только этот блок при печати -->
+<div id="printSheet"></div>
+
+<script>
+/* ---------- ЗАГРУЗКА ПОЛНОЙ БАЗЫ ---------- */
+let items = [];
+
+async function loadData(){
+  try{
+    const res = await fetch('/data/ideas.json');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    items = json.items || [];
+    if(items.length === 0) throw new Error('Пустая база');
+  } catch(e){
+    console.error('Не удалось загрузить /data/ideas.json:', e);
+    document.getElementById('dataWarning').classList.add('show');
+    items = [
+      {id:"fallback_1", category:"Игры и техника", tags:["игры"], skills:["логическое мышление","терпение"], roles:["Помощник в магазине электроники"], comment:"пример из аварийного набора — основная база не загрузилась"}
+    ];
+  }
+  initAll();
+}
+
+/* ---------- ПОИСК: стемминг + словарь синонимов/жаргона ---------- */
+function stem(w){
+  w = w.toLowerCase();
+  if(w.length <= 4) return w;
+  return w.replace(/(иями|ями|ами|скими|ского|ской|ские|ский|ская|ское|его|ому|ыми|ими|ует|ешь|ете|ают|ют|ла|ло|ли|тся|ться|а|я|ы|и|о|е|у|ю|й|ь)$/, '');
+}
+function tokenize(text){
+  return (text || '').toLowerCase().replace(/[^а-яёa-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2).map(stem);
+}
+function itemSearchTokens(item){
+  if(item._stemTokens) return item._stemTokens;
+  const raw = [item.category, ...(item.tags||[]), ...(item.skills||[]), ...(item.examples_now||[])].join(' ');
+  item._stemTokens = tokenize(raw);
+  return item._stemTokens;
+}
+/* лёгкое расширение "этапа 2": жаргон/сленг/бренды → тег, без ручной разметки всех 103 записей */
+const SYNONYMS = {
+  "катка":"игры","тиммейт":"игры","дота":"игры","dota":"игры","кс":"игры","cs":"игры","валорант":"игры",
+  "шутер":"игры","майнкрафт":"игры","minecraft":"игры","роблокс":"игры","roblox":"игры",
+  "стрим":"видео","стример":"видео","твич":"видео","twitch":"видео","ютуб":"видео","youtube":"видео","блогер":"видео","монтирую":"видео",
+  "аниме":"аниме","манга":"аниме","косплей":"творчество",
+  "кодить":"it","код":"it","программирую":"it","программа":"it","сайт":"it","github":"it",
+  "тренировка":"спорт","качалка":"спорт","зал":"спорт","бег":"спорт","бегаю":"спорт",
+  "рисование":"творчество","рисую":"творчество","арт":"творчество",
+  "готовлю":"готовка","кулинария":"готовка","печь":"готовка","пеку":"готовка",
+  "питомец":"животные","кот":"животные","собака":"животные","кошка":"животные",
+  "путешествия":"путешествия","поездки":"путешествия",
+  "деньги":"финансы","инвестиции":"финансы","акции":"финансы","крипта":"финансы",
+  "английский":"языки","немецкий":"языки","иностранный":"языки",
+  "дрон":"техника","квадрокоптер":"техника","fpv":"техника"
+};
+function matchItems(text, limit){
+  const lower = (text||'').toLowerCase();
+  const queryTokens = new Set(tokenize(text));
+  const bonusTags = new Set();
+  Object.keys(SYNONYMS).forEach(k=>{ if(lower.includes(k)) bonusTags.add(SYNONYMS[k]); });
+  if(queryTokens.size===0 && bonusTags.size===0) return [];
+  const scored = items.map(item=>{
+    const hay = itemSearchTokens(item);
+    let score = 0;
+    hay.forEach(t=>{ if(queryTokens.has(t)) score++; });
+    (item.tags||[]).forEach(tag=>{
+      if(queryTokens.has(stem(tag))) score += 2;
+      if(bonusTags.has(tag)) score += 3;
+    });
+    return {item, score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  return scored.slice(0, limit || 3).map(x=>x.item);
+}
+
+/* ---------- DOM refs ---------- */
+const filtersEl = document.getElementById('filters');
+const boardEl = document.getElementById('board');
+const roleGridEl = document.getElementById('roleGrid');
+const roleResultEl = document.getElementById('roleResult');
+const roleSearchEl = document.getElementById('roleSearch');
+const roleChosenEl = document.getElementById('roleChosen');
+const sheetContainer = document.getElementById('sheetContainer');
+const counterEl = document.getElementById('counter');
+const ctaLock = document.getElementById('ctaLock');
+const headerTitle = document.getElementById('headerTitle');
+const headerSub = document.getElementById('headerSub');
+const browseSection = document.getElementById('browseSection');
+const byRoleSection = document.getElementById('byRoleSection');
+const aiSection = document.getElementById('aiSection');
+const chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const quickReplies = document.getElementById('quickReplies');
+const recBox = document.getElementById('recBox');
+const dontKnowBtn = document.getElementById('dontKnowBtn');
+const branchPanel = document.getElementById('branchPanel');
+const gearBtn = document.getElementById('gearBtn');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const drawerClose = document.getElementById('drawerClose');
+
+let active = new Set();
+let added = [];
+let activeRole = null;
+let haveSkills = new Set();
+/* ручные поля резюме — живут отдельно от added, переживают перерисовку шаблона */
+let profile = { name:'', role:'', phone:'', email:'', education:'', about:'', aboutTouched:false, exp:'', expTouched:false, schedule:'', portfolio:'' };
+
+/* ---------- DRAWER ---------- */
+gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
+drawerClose.addEventListener('click', ()=> drawerOverlay.classList.remove('open'));
+drawerOverlay.addEventListener('click', (e)=>{ if(e.target===drawerOverlay) drawerOverlay.classList.remove('open'); });
+
+/* ---------- MODE SWITCH ---------- */
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    browseSection.style.display = mode==='browse' ? 'block' : 'none';
+    byRoleSection.style.display = mode==='byrole' ? 'block' : 'none';
+    aiSection.style.display = mode==='ai' ? 'block' : 'none';
+    if(mode==='browse'){
+      headerTitle.textContent = 'Листай и нажимай «Добавить в резюме»';
+      headerSub.textContent = 'Резюме слева заполняется само. Ничего не нужно печатать вручную.';
+    } else if(mode==='byrole'){
+      headerTitle.textContent = 'Выбери профессию — узнай, что для неё уже умеешь';
+      headerSub.textContent = 'Обратный способ: не от хобби к роли, а от роли к скрытым навыкам.';
+    } else {
+      headerTitle.textContent = 'Расскажи, чем занимаешься — подскажем, что с этим делать';
+      headerSub.textContent = 'Работает по нашей базе идей локально, без внешнего ИИ.';
+      if(!chatStarted) startChat();
+    }
+  });
+});
+
+/* ---------- ОБЩИЙ TOGGLE: добавить/убрать идею из резюме ---------- */
+function toggleAdded(itemId){
+  const idx = added.findIndex(a=>a.id===itemId);
+  if(idx>=0){ added.splice(idx,1); }
+  else { const item = items.find(i=>i.id===itemId); if(item) added.push(item); }
+  updateResume();
+}
+
+/* ---------- MODE A: BROWSE ---------- */
+function renderFilters(){
+  const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
+  filtersEl.innerHTML = allTags.map(t=>`<button class="chip${active.has(t)?' active':''}" data-tag="${t}">${t}</button>`).join('');
+  filtersEl.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const t = chip.dataset.tag;
+      active.has(t)?active.delete(t):active.add(t);
+      renderFilters(); renderBoard();
+    });
+  });
+}
+
+function researchBlockHtml(item){
+  if(!item.research) return '';
+  return `<button class="research-toggle" data-research-id="${item.id}">🔬 Что говорят исследования</button>
+    <div class="research-box" id="research-${item.id}">
+      <div class="rb-summary">${item.research.summary}</div>
+      <div class="rb-caveat">⚠️ ${item.research.caveat}</div>
+      <div class="rb-source">Источник: <a href="${item.research.source_url}" target="_blank" rel="noopener">${item.research.source_name}</a></div>
+    </div>`;
+}
+
+function renderBoard(){
+  const filtered = active.size===0 ? items : items.filter(i=>(i.tags||[]).some(t=>active.has(t)));
+  if(filtered.length===0){ boardEl.innerHTML = `<div class="empty-state">Ничего не нашлось по этим тегам.</div>`; return; }
+  boardEl.innerHTML = filtered.map(item=>{
+    const isAdded = added.find(a=>a.id===item.id);
+    const tags = item.skills_reframed && item.skills_reframed.length ? item.skills_reframed : (item.skills||[]);
+    return `<div class="card">
+      <div class="card-eyebrow">${item.category}</div>
+      <h3><a href="/idei/${item.id}/">${item.activity_title || item.category}</a></h3>
+      ${item.resume_bullet ? `<p class="card-bullet">${item.resume_bullet}</p>` : ''}
+      <div class="tag-row">${tags.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      ${item.employer_value ? `<div class="employer-value">💼 ${item.employer_value}</div>` : ''}
+      <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
+      ${researchBlockHtml(item)}
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено (нажми, чтобы убрать)':'+ Добавить в резюме'}</button>
+    </div>`;
+  }).join('');
+
+  boardEl.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      toggleAdded(btn.dataset.id);
+      renderBoard();
+      renderRoleResult();
+    });
+  });
+  boardEl.querySelectorAll('.research-toggle').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.getElementById('research-' + btn.dataset.researchId).classList.toggle('open');
+    });
+  });
+}
+
+/* ---------- MODE B: BY ROLE ---------- */
+let roleSearchQuery = '';
+
+function renderRoleGrid(){
+  const allRoles = [...new Set(items.flatMap(i=>i.roles||[]))].sort();
+
+  // если профессия уже выбрана — сворачиваем плитку, показываем только маленький чип
+  if(activeRole){
+    roleGridEl.style.display = 'none';
+    roleSearchEl.style.display = 'none';
+    roleChosenEl.style.display = 'block';
+    roleChosenEl.innerHTML = `<div class="role-chosen-chip">${activeRole} <button id="changeRoleBtn">изменить</button></div>`;
+    document.getElementById('changeRoleBtn').addEventListener('click', ()=>{
+      activeRole = null;
+      roleSearchQuery = '';
+      roleSearchEl.value = '';
+      renderRoleGrid();
+      renderRoleResult();
+    });
+    return;
+  }
+
+  roleGridEl.style.display = 'flex';
+  roleSearchEl.style.display = 'block';
+  roleChosenEl.style.display = 'none';
+
+  const q = roleSearchQuery.toLowerCase();
+  const filtered = q ? allRoles.filter(r=>r.toLowerCase().includes(q)) : allRoles;
+
+  if(filtered.length===0){
+    roleGridEl.innerHTML = `<div class="empty-state">Ничего не нашлось — попробуй другое слово.</div>`;
+    return;
+  }
+  roleGridEl.innerHTML = filtered.map(r=>`<button class="role-chip" data-role="${r}">${r}</button>`).join('');
+  roleGridEl.querySelectorAll('.role-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      activeRole = chip.dataset.role;
+      renderRoleGrid();
+      renderRoleResult();
+    });
+  });
+}
+
+roleSearchEl.addEventListener('input', ()=>{
+  roleSearchQuery = roleSearchEl.value;
+  renderRoleGrid();
+});
+
+function renderRoleResult(){
+  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-state">Здесь появятся навыки, как только выберешь профессию.</div>`; return; }
+  const matching = items.filter(i=>(i.roles||[]).includes(activeRole));
+  if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-state">Пока нет связок для этой роли.</div>`; return; }
+
+  const skillMap = new Map();
+  matching.forEach(item=>{
+    const reframed = (item.skills_reframed && item.skills_reframed.length) ? item.skills_reframed : (item.skills||[]);
+    reframed.forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); });
+  });
+
+  roleResultEl.innerHTML = [...skillMap.entries()].map(([skill,srcItem])=>{
+    const isHave = haveSkills.has(skill);
+    return `<div class="skill-check${isHave?' have':''}" data-skill="${skill}" data-item="${srcItem.id}">
+      <div class="box">${isHave?'✓':''}</div>
+      <div class="txt">
+        <div class="sk">${skill}</div>
+        <div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div>
+        ${srcItem.employer_value ? `<div class="src" style="margin-top:3px;">💼 ${srcItem.employer_value}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  roleResultEl.querySelectorAll('.skill-check').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const skill = el.dataset.skill;
+      const srcItem = items.find(i=>i.id===el.dataset.item);
+      if(haveSkills.has(skill)){
+        haveSkills.delete(skill);
+        const stillNeeded = [...skillMap.entries()].some(([s,it])=> it.id===srcItem.id && haveSkills.has(s));
+        if(!stillNeeded){ const idx = added.findIndex(a=>a.id===srcItem.id); if(idx>=0) added.splice(idx,1); }
+      } else {
+        haveSkills.add(skill);
+        if(!added.find(a=>a.id===srcItem.id)) added.push(srcItem);
+      }
+      updateResume();
+      renderRoleResult();
+    });
+  });
+}
+
+/* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
+function aboutTextFrom(list){
+  /* Новая версия (v4 базы): используем about_snippet, подготовленный по методологии
+     Ramit Sethi / Laszlo Bock / Ильяхов — вместо алгоритмической формулы "Умею: X.
+     Наработал(а) через: Y". Формула была нашей временной заплаткой; теперь у каждой
+     карточки есть осмысленно написанная фраза. Собираем 2-3 сниппета в связный абзац. */
+  const snippets = list.map(a => a.about_snippet).filter(Boolean).slice(0,3);
+  if(snippets.length === 0){
+    // fallback на случай если у записи почему-то нет about_snippet (не должно происходить в v4)
+    return 'Умею: ' + [...new Set(list.flatMap(a=>a.skills||[]))].slice(0,3).join(', ') + '.';
+  }
+  return snippets.join('\n');
+}
+function expLineFrom(item){
+  return item.resume_bullet || `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
+}
+function expTextFrom(list){
+  return list.map(expLineFrom).join('\n');
+}
+function bindProfileInputs(container){
+  container.querySelectorAll('[data-profile-field]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ profile[inp.dataset.profileField] = inp.value; });
+  });
+  container.querySelectorAll('[data-profile-textarea]').forEach(ta=>{
+    ta.addEventListener('input', ()=>{
+      const field = ta.dataset.profileTextarea;
+      profile[field] = ta.value;
+      profile[field + 'Touched'] = true;
+    });
+  });
+  container.querySelectorAll('[data-reset-field]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const field = btn.dataset.resetField;
+      profile[field] = '';
+      profile[field + 'Touched'] = false;
+      updateResume();
+    });
+  });
+}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s){ return esc(s).replace(/\n/g,'&#10;'); }
+
+function editableBlock(label, field, autoText, rows){
+  const touched = profile[field + 'Touched'];
+  const value = touched ? profile[field] : autoText;
+  const resetBtn = touched ? `<button class="reset-btn" data-reset-field="${field}">↺ вернуть автотекст</button>` : '';
+  // Блюр/readonly до разблокировки убраны по решению: защита от копирования технически
+  // слабая и вредная (мешает ATS, не даёт исправить ошибки, создаёт "кота в мешке" —
+  // пользователь не видит, что получает, пока не выполнит условие). Копирование — на
+  // совести пользователя, кнопка "Скачать PDF" остаётся единственной точкой разблокировки.
+  return `<div class="editable-wrap">
+    <div class="field-head"><div class="label-sm" style="margin-bottom:0;">${label}</div>${resetBtn}</div>
+    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст">${esc(value)}</textarea>
+  </div>`;
+}
+
+function renderCompactSheet(){
+  const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
+  const tags = [...new Set(added.flatMap(a=>a.tags||[]))];
+  const autoRole = added.length ? (added[0].roles||[])[0] : '';
+  return `
+    <div class="side">
+      <div class="avatar">👤</div>
+      <div>
+        <input class="field-input name-input" data-profile-field="name" placeholder="Имя Фамилия" value="${esc(profile.name)}">
+        <input class="field-input role-input" data-profile-field="role" placeholder="${esc(autoRole || 'На какую роль претендуешь')}" value="${esc(profile.role)}">
+      </div>
+      <div>
+        <div class="label-sm">Контакты</div>
+        <div class="contact-row">✉️ <input class="field-input small-input" data-profile-field="email" placeholder="mail@example.com" value="${esc(profile.email)}"></div>
+        <div class="contact-row">📞 <input class="field-input small-input" data-profile-field="phone" placeholder="+7 900 000-00-00" value="${esc(profile.phone)}"></div>
+      </div>
+      <div><div class="label-sm">Навыки</div>${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('') : '<span class="placeholder">появятся после выбора идей</span>'}</div>
+      <div><div class="label-sm">Интересы</div>${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}</div>
+      <div><div class="label-sm">Желаемый график</div><textarea class="field-textarea" data-profile-field="schedule" rows="2" placeholder="Напр.: летом, 20-25 часов в неделю">${esc(profile.schedule)}</textarea></div>
+    </div>
+    <div class="main">
+      ${added.length ? editableBlock('О себе', 'about', aboutTextFrom(added), 3) : '<div><div class="label-sm">О себе</div><span class="placeholder">пара строк появится автоматически</span></div>'}
+      ${added.length ? editableBlock('Что предлагаю', 'exp', expTextFrom(added), 4) : '<div><div class="label-sm">Что предлагаю</div><span class="placeholder">выбери идею слева</span></div>'}
+      <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
+      <div><div class="label-sm">Портфолио / ссылки <span style="text-transform:none; font-style:italic;">(если есть)</span></div><textarea class="field-textarea" data-profile-field="portfolio" rows="2" placeholder="Instagram, YouTube, GitHub...">${esc(profile.portfolio)}</textarea></div>
+      <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
+    </div>`;
+}
+function renderDenseSheet(){
+  const autoRole = (added[0].roles||[])[0];
+  return `
+    <div>
+      <input class="field-input name-input" data-profile-field="name" placeholder="Имя Фамилия" value="${esc(profile.name)}">
+      <input class="field-input role-input" data-profile-field="role" placeholder="${esc(autoRole || 'На какую роль претендуешь')}" value="${esc(profile.role)}">
+      <div class="contacts-row">
+        <span>✉️ <input class="field-input small-input" data-profile-field="email" placeholder="mail@example.com" value="${esc(profile.email)}"></span>
+        <span>📞 <input class="field-input small-input" data-profile-field="phone" placeholder="+7 900 000-00-00" value="${esc(profile.phone)}"></span>
+      </div>
+    </div>
+    <div class="block">${editableBlock('О себе', 'about', aboutTextFrom(added), 3)}</div>
+    <div class="block">${editableBlock('Проектный опыт', 'exp', expTextFrom(added), 5)}</div>
+    <div class="block two-col">
+      <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+      <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
+    </div>
+    <div class="block two-col">
+      <div><div class="label-sm">Желаемый график</div><textarea class="field-textarea" data-profile-field="schedule" rows="2" placeholder="Напр.: летом, 20-25 часов в неделю">${esc(profile.schedule)}</textarea></div>
+      <div><div class="label-sm">Портфолио / ссылки <span style="text-transform:none; font-style:italic;">(если есть)</span></div><textarea class="field-textarea" data-profile-field="portfolio" rows="2" placeholder="Instagram, YouTube, GitHub...">${esc(profile.portfolio)}</textarea></div>
+    </div>`;
+}
+function updateResume(){
+  counterEl.textContent = `Добавлено идей: ${added.length}`;
+  const isCompact = added.length < 2;
+  sheetContainer.className = 'sheet ' + (isCompact ? 'compact' : 'dense');
+  sheetContainer.innerHTML = isCompact ? renderCompactSheet() : renderDenseSheet();
+  bindProfileInputs(sheetContainer);
+  ctaLock.classList.toggle('ready', added.length>=2);
+  renderTraitSynthesis();
+}
+
+/* ---------- БЛОК-СИНТЕЗ: тёплая поддержка на языке черт, не психологический разбор ---------- */
+const TRAIT_RULES = [
+  { tags:["дети","животные"], trait:"забота о других", phrases:[
+    "Судя по тому, что откликается — тебе, похоже, комфортно нести ответственность за других.",
+    "Такие интересы часто говорят о том, что тебе важно заботиться о ком-то.",
+    "Часто за этим стоит развитая забота о более уязвимых — ценное качество для многих профессий." ]},
+  { tags:["игры","it"], trait:"техническое мышление", phrases:[
+    "Похоже, тебе комфортно разбираться в системах и логике — это не всем даётся легко.",
+    "Такое сочетание часто выдаёт человека, которому интересно, «как это устроено внутри».",
+    "Тянет к технике и системам — это склад ума, который сейчас особенно востребован." ]},
+  { tags:["волонтёрство","организация"], trait:"инициативность", phrases:[
+    "Ты из тех, кто не ждёт, пока кто-то другой организует — берёшь и делаешь сам(а).",
+    "Судя по выбранному — тебе комфортно быть в центре организации процесса, а не сбоку.",
+    "Это обычно про людей, которые готовы взять на себя чуть больше, чем просят." ]},
+  { tags:["музыка","творчество"], trait:"самовыражение", phrases:[
+    "Тебе, похоже, важно не просто потреблять — а создавать что-то своё.",
+    "За этим часто стоит потребность выразить себя, а не просто занять время.",
+    "Похоже, тебе ближе роли, где можно привнести что-то своё, а не действовать по шаблону." ]},
+  { tags:["финансы","организация"], trait:"структурное мышление", phrases:[
+    "Тебе, кажется, комфортно с цифрами и порядком — это встречается не так часто, как кажется.",
+    "Похоже, ты из тех, кому спокойнее, когда всё разложено по полочкам.",
+    "Такое сочетание обычно говорит о склонности мыслить системно и по цифрам." ]},
+  { tags:["видео","фото"], trait:"визуальное чутьё", phrases:[
+    "У тебя, похоже, развит глаз на то, как что-то выглядит и ощущается визуально.",
+    "Такое сочетание часто выдаёт человека с хорошим чувством композиции и подачи.",
+    "Похоже, тебе важно не только что сказать, но и как это показать." ]},
+  { tags:["готовка","рукоделие"], trait:"усидчивость и аккуратность", phrases:[
+    "Судя по выбранному — тебе комфортно с задачами, которые требуют терпения и точности.",
+    "Это обычно про людей, которые не бросают дело на middle, а доводят до конца аккуратно.",
+    "Похоже, тебе спокойнее в задачах, где важен результат, а не скорость." ]},
+  { tags:["путешествия","языки"], trait:"открытость новому", phrases:[
+    "Тебя, похоже, не пугает незнакомое — скорее наоборот, тянет туда.",
+    "Такое сочетание часто говорит о готовности выходить за пределы привычного.",
+    "Похоже, тебе комфортнее там, где нужно быстро адаптироваться к новому." ]},
+  { tags:["книги","сериалы"], trait:"внимание к деталям и историям", phrases:[
+    "Ты, похоже, из тех, кто замечает детали, которые другие пропускают мимо.",
+    "Такой интерес часто выдаёт развитое внимание к структуре и мотивам — не только к сюжету.",
+    "Похоже, тебе важно понимать, «почему», а не только «что произошло»." ]},
+  { tags:["волонтёрство"], trait:"неравнодушие", phrases:[
+    "Похоже, тебе не всё равно на то, что происходит вокруг — это редко бывает случайностью.",
+    "Такой выбор часто говорит о готовности вкладываться, даже когда не обязательно." ]},
+  { tags:["спорт"], trait:"дисциплина", phrases:[
+    "Регулярность в этом деле обычно говорит о том, что ты умеешь держать слово перед собой.",
+    "Похоже, тебе комфортно с рутиной, если она ведёт к результату." ]},
+  { tags:["it"], trait:"системное мышление", phrases:[
+    "Похоже, тебе интересно докапываться до сути того, как всё устроено.",
+    "Такой интерес часто выдаёт склонность мыслить логично и по шагам." ]},
+  { tags:["животные"], trait:"забота о других", phrases:[
+    "Судя по этому — тебе, похоже, комфортно заботиться о ком-то, кто не может позаботиться о себе сам.",
+    "Это часто говорит о развитой эмпатии, даже если сам(а) об этом не задумывался(-лась)." ]},
+  { tags:["соцсети"], trait:"умение находить общий язык", phrases:[
+    "Похоже, тебе легко удерживать внимание людей — не у всех это получается естественно.",
+    "Такой интерес часто выдаёт человека, которому комфортно быть на виду." ]}
+];
+
+function renderTraitSynthesis(){
+  const box = document.getElementById('traitBox');
+  if(!box) return;
+  if(added.length < 2){ box.style.display = 'none'; box.innerHTML=''; return; }
+
+  const tagSet = new Set(added.flatMap(a=>a.tags||[]));
+  const matched = [];
+  TRAIT_RULES.forEach(rule=>{
+    if(rule.tags.every(t=>tagSet.has(t)) && !matched.find(m=>m.trait===rule.trait)) matched.push(rule);
+  });
+
+  box.style.display = 'block';
+  if(matched.length===0){
+    box.innerHTML = `<div class="trait-card"><div class="trait-label">✦ Что вырисовывается</div><div class="trait-text">Пока рано делать выводы, но уже видно, что интересы у тебя разносторонние — само по себе неплохая черта.</div></div>`;
+    return;
+  }
+  box.innerHTML = matched.slice(0,2).map(rule=>{
+    const phrase = rule.phrases[Math.floor(Math.random()*rule.phrases.length)];
+    return `<div class="trait-card"><div class="trait-label">✦ ${rule.trait}</div><div class="trait-text">${phrase}</div></div>`;
+  }).join('');
+}
+
+/* ---------- MODE C: ПОДСКАЗЧИК (локальный, без внешнего ИИ) ---------- */
+let chatStarted = false;
+let chatStep = 0;
+
+function addMsg(text, who){
+  const m = document.createElement('div');
+  m.className = 'msg ' + who;
+  m.textContent = text;
+  chatLog.appendChild(m);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function startChat(){
+  chatStarted = true;
+  addMsg('Привет! Расскажи — чем ты обычно занимаешься в свободное время? Игры, сериалы, спорт, что мастеришь руками — что угодно.', 'bot');
+  quickReplies.innerHTML = ['Играю в игры','Смотрю сериалы','Занимаюсь спортом','Что-то мастерю руками'].map(q=>`<span class="quick-reply">${q}</span>`).join('');
+  bindQuickReplies();
+  chatStep = 1;
+}
+function bindQuickReplies(){
+  quickReplies.querySelectorAll('.quick-reply').forEach(el=>{ el.addEventListener('click', ()=> handleUserMessage(el.textContent)); });
+}
+function handleUserMessage(text){
+  if(!text.trim()) return;
+  addMsg(text, 'user');
+  chatInput.value = '';
+  quickReplies.innerHTML = '';
+  branchPanel.style.display = 'none';
+
+  setTimeout(()=>{
+    if(chatStep === 1){
+      addMsg('Понял. А можешь чуть конкретнее — во что именно играешь, что смотришь или чем занимаешься руками? Любая деталь поможет.', 'bot');
+      chatStep = 2;
+    } else if(chatStep === 2 || chatStep === 3){
+      const found = matchItems(text, 3);
+      if(found.length > 0){
+        addMsg('Смотри, что нашлось по нашей базе — может, что-то откликнется:', 'bot');
+        renderRecommendations(found);
+      } else {
+        addMsg('Пока не нашёл точного совпадения в базе по этим словам. Попробуй описать иначе, или нажми кнопку ниже — покажу по темам.', 'bot');
+      }
+      chatStep = 3;
+    } else {
+      addMsg('Если что-то из рекомендаций подошло — жми «Добавить в резюме». Можем продолжить, если хочешь копнуть ещё одну тему.', 'bot');
+    }
+  }, 400);
+}
+
+dontKnowBtn.addEventListener('click', ()=>{
+  if(!chatStarted) startChat();
+  const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
+  branchPanel.style.display = 'block';
+  branchPanel.innerHTML = `<div class="branch-hint">Выбери тему, которая ближе всего — покажу связанные идеи:</div><div class="branch-chips" id="branchChips">${allTags.map(t=>`<button class="chip" data-branch-tag="${t}">${t}</button>`).join('')}</div>`;
+  branchPanel.querySelectorAll('[data-branch-tag]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const tag = chip.dataset.branchTag;
+      const matching = items.filter(i=>(i.tags||[]).includes(tag)).slice(0,4);
+      addMsg('Тема: ' + tag, 'user');
+      if(matching.length>0){ addMsg('Вот что обычно встречается в этой теме:', 'bot'); renderRecommendations(matching); }
+      else { addMsg('По этой теме пока пусто в базе.', 'bot'); }
+      branchPanel.style.display = 'none';
+    });
+  });
+});
+
+function renderRecommendations(found){
+  recBox.innerHTML = found.map(item=>{
+    const isAdded = added.find(a=>a.id===item.id);
+    return `<div class="rec-card">
+      <div class="sk">${item.category}</div>
+      <div class="why">${item.comment} → ${(item.roles||[])[0]||''}</div>
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}" style="width:auto; padding:8px 14px;">${isAdded?'✓ Добавлено (убрать)':'+ Добавить в резюме'}</button>
+    </div>`;
+  }).join('');
+  recBox.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      toggleAdded(btn.dataset.id);
+      renderRecommendations(found);
+    });
+  });
+}
+
+chatSend.addEventListener('click', ()=> handleUserMessage(chatInput.value));
+chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleUserMessage(chatInput.value); });
+
+/* ---------- INIT ---------- */
+/* ---------- ПЕЧАТЬ / PDF: собираем чистый слой без полей ввода и интерфейса ---------- */
+function renderPrintSheet(){
+  const printEl = document.getElementById('printSheet');
+  const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
+  const autoRole = added.length ? (added[0].roles||[])[0] : '';
+  const roleVal = profile.role || autoRole;
+  const aboutVal = profile.aboutTouched ? profile.about : (added.length ? aboutTextFrom(added) : '');
+  const contacts = [profile.email, profile.phone].filter(Boolean).join('  ·  ');
+
+  // "Проектный опыт": если пользователь не трогал поле руками — рендерим каждый пункт
+  // ОТДЕЛЬНЫМ блоком с запретом разрыва внутри (иначе браузер может разорвать пункт
+  // посередине предложения на границе страниц). Если поле отредактировано вручную —
+  // это уже свободный текст, структуру по пунктам сохранить нечем, печатаем как есть.
+  let expHtml = '';
+  if(profile.expTouched){
+    if(profile.exp) expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div><div class="p-text">${esc(profile.exp)}</div></div>`;
+  } else if(added.length){
+    const items = added.map(a=>`<div class="p-proj"><b>${esc(a.activity_title || a.category)}</b> — ${esc(a.resume_bullet || (a.skills||[]).join(', '))}</div>`).join('');
+    expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div>${items}</div>`;
+  }
+
+  printEl.innerHTML = `
+    <div class="p-name">${esc(profile.name) || 'Имя Фамилия'}</div>
+    ${roleVal ? `<div class="p-role">${esc(roleVal)}</div>` : ''}
+    ${contacts ? `<div class="p-contacts">${contacts}</div>` : ''}
+    ${profile.schedule ? `<div class="p-section"><div class="p-label">Желаемый график</div><div class="p-text">${esc(profile.schedule)}</div></div>` : ''}
+    ${aboutVal ? `<div class="p-section"><div class="p-label">О себе</div><div class="p-text">${esc(aboutVal)}</div></div>` : ''}
+    ${skills.length ? `<div class="p-section"><div class="p-label">Навыки</div><div class="p-text p-tags">${skills.map(s=>`<span>· ${s}</span>`).join('')}</div></div>` : ''}
+    ${expHtml}
+    ${profile.education ? `<div class="p-section"><div class="p-label">Образование</div><div class="p-text">${esc(profile.education)}</div></div>` : ''}
+    ${profile.portfolio ? `<div class="p-section"><div class="p-label">Портфолио / ссылки</div><div class="p-text">${esc(profile.portfolio)}</div></div>` : ''}
+  `;
+}
+window.addEventListener('beforeprint', ()=>{
+  // Кнопка на сайте — не единственный способ вызвать печать (Ctrl+P/меню браузера её не видят).
+  // Поэтому проверяем условие здесь же, при самом событии печати, а не только в клике по кнопке —
+  // иначе через Ctrl+P можно получить полное резюме в обход разблокировки.
+  if(isUnlocked()){
+    renderPrintSheet();
+  } else {
+    document.getElementById('printSheet').innerHTML = `
+      <div style="padding:50mm 25mm; text-align:center; font-family:'Manrope',sans-serif;">
+        <div style="font-size:16pt; font-weight:700; margin-bottom:8mm;">Скачивание пока не разблокировано</div>
+        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там есть варианты: поделиться постом или просто подождать. Выбирай, что удобнее.</div>
+      </div>`;
+  }
+});
+ctaLock.addEventListener('click', ()=>{
+  if(added.length < 2) return;
+  if(isUnlocked()){ showPrePrintInstruction(); }
+  else { openUnlockModal(); }
+});
+
+/* ---------- РАЗБЛОКИРОВКА: поделиться (сразу) или подождать 10 минут — простая версия для пробного запуска ---------- */
+const UNLOCK_KEY = 'resumeSiteUnlockedAt';       // timestamp — нужен для 24-часового срока действия
+const ACCESS_DURATION_MS = 24 * 60 * 60 * 1000;   // доступ действует 24 часа
+const WAIT_MS = 10 * 60 * 1000;                   // бесплатное ожидание — 10 минут
+const WAIT_START_KEY = 'resumeSiteWaitStart';
+
+const POST_VARIANTS = [
+  "90% резюме школьников и студентов начинаются одинаково: «Опыта работы не имею». А ведь опыт чаще всего есть — просто прячется не в трудовой книжке, а в кружке робототехники, в шахматном клубе или в паблике на 800 подписчиков, который ты ведёшь два года. Этот сайт помогает такое увидеть и грамотно написать — бесплатно, за 10 минут.\n[ссылка на сайт]",
+  "Работодателю не нужен твой опыт. Ему нужны доказательства, что ты умеешь делать дело — а они чаще всего прячутся не в трудовой книжке, а в том, чем ты увлекаешься по вечерам. Если знаешь кого-то, кто сейчас смотрит на пустое резюме и не понимает, что туда писать — кинь ему эту ссылку.\n[ссылка на сайт]",
+  "Резюме без опыта — не оксюморон. Это просто резюме, которое пока никто не помог написать правильно. Помогли — вот тут, бесплатно.\n[ссылка на сайт]"
+];
+
+function isUnlocked(){
+  try{
+    const unlockedAt = parseInt(localStorage.getItem(UNLOCK_KEY) || '0', 10);
+    if(!unlockedAt) return false;
+    return (Date.now() - unlockedAt) < ACCESS_DURATION_MS;
+  } catch(e){ return false; }
+}
+function setUnlocked(){
+  try{ localStorage.setItem(UNLOCK_KEY, String(Date.now())); } catch(e){}
+}
+
+const unlockOverlay = document.getElementById('unlockOverlay');
+const unlockClose = document.getElementById('unlockClose');
+const postVariantsEl = document.getElementById('postVariants');
+const postLinkInput = document.getElementById('postLinkInput');
+const confirmShareBtn = document.getElementById('confirmShareBtn');
+const shareNote = document.getElementById('shareNote');
+const waitTimerEl = document.getElementById('waitTimer');
+const waitNoteEl = document.getElementById('waitNote');
+
+function openUnlockModal(){
+  unlockOverlay.classList.add('open');
+  renderPostVariants();
+  startOrResumeWaitTimer();
+}
+unlockClose.addEventListener('click', ()=> unlockOverlay.classList.remove('open'));
+unlockOverlay.addEventListener('click', (e)=>{ if(e.target===unlockOverlay) unlockOverlay.classList.remove('open'); });
+
+document.querySelectorAll('.unlock-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.unlock-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.tab;
+    document.getElementById('unlockShareTab').style.display = which==='share' ? 'block' : 'none';
+    document.getElementById('unlockWaitTab').style.display = which==='wait' ? 'block' : 'none';
+  });
+});
+
+function renderPostVariants(){
+  postVariantsEl.innerHTML = POST_VARIANTS.map((text, i)=>`
+    <div class="post-variant">
+      <div class="pv-text">${esc(text)}</div>
+      <button class="pv-copy-btn" data-idx="${i}">📋 Скопировать</button>
+    </div>`).join('');
+  postVariantsEl.querySelectorAll('.pv-copy-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const idx = parseInt(btn.dataset.idx, 10);
+      try{
+        await navigator.clipboard.writeText(POST_VARIANTS[idx]);
+        btn.textContent = '✓ Скопировано';
+        setTimeout(()=>{ btn.textContent = '📋 Скопировать'; }, 1800);
+      } catch(e){
+        btn.textContent = 'Не вышло — выдели текст вручную';
+      }
+    });
+  });
+}
+
+// URL функции проверки поста (Yandex Cloud Functions) — вставить после деплоя,
+// см. prototypes/07-verify-post-function.md. Пока пусто — работает старое поведение
+// "на доверии" (см. ветку else ниже), сайт не ломается без задеплоенной функции.
+const VERIFY_FUNCTION_URL = ''; // TODO: вставить URL после деплоя
+
+function grantAccessAndPrint(){
+  setUnlocked();
+  updateResume();
+  unlockOverlay.classList.remove('open');
+  showPrePrintInstruction();
+}
+
+confirmShareBtn.addEventListener('click', async ()=>{
+  const link = postLinkInput.value.trim();
+  if(!link){ shareNote.textContent = 'Вставь ссылку на пост, пожалуйста.'; shareNote.className='unlock-note'; return; }
+  if(!/^https?:\/\//.test(link)){ shareNote.textContent = 'Похоже, это не похоже на ссылку.'; shareNote.className='unlock-note'; return; }
+
+  if(!VERIFY_FUNCTION_URL){
+    console.warn('VERIFY_FUNCTION_URL не настроен — проверка ссылки пропущена (доверительный режим)');
+    shareNote.textContent = '✓ Спасибо! Разблокировано.';
+    shareNote.className = 'unlock-note success';
+    setTimeout(grantAccessAndPrint, 700);
+    return;
+  }
+
+  confirmShareBtn.disabled = true;
+  shareNote.textContent = 'Проверяем...';
+  shareNote.className = 'unlock-note';
+
+  try{
+    const res = await fetch(VERIFY_FUNCTION_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({link})
+    });
+    const data = await res.json();
+    if(data.verified){
+      shareNote.textContent = '✓ Спасибо! Разблокировано.';
+      shareNote.className = 'unlock-note success';
+      setTimeout(grantAccessAndPrint, 700);
+    } else {
+      shareNote.textContent = data.reason || 'Не удалось подтвердить пост — проверь ссылку.';
+      shareNote.className = 'unlock-note';
+      confirmShareBtn.disabled = false;
+    }
+  } catch(e){
+    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Просто подождать".';
+    shareNote.className = 'unlock-note';
+    confirmShareBtn.disabled = false;
+  }
+});
+
+function formatMS(ms){
+  const m = Math.floor(ms/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+let waitInterval = null;
+function startOrResumeWaitTimer(){
+  let startedAt = parseInt(localStorage.getItem(WAIT_START_KEY) || '0', 10);
+  if(!startedAt){
+    startedAt = Date.now();
+    localStorage.setItem(WAIT_START_KEY, String(startedAt));
+  }
+  if(waitInterval) clearInterval(waitInterval);
+  waitInterval = setInterval(()=>{
+    const remainingMs = Math.max(0, WAIT_MS - (Date.now() - startedAt));
+    waitTimerEl.textContent = formatMS(remainingMs);
+    if(remainingMs <= 0){
+      clearInterval(waitInterval);
+      localStorage.removeItem(WAIT_START_KEY);
+      waitTimerEl.textContent = '✓ Готово!';
+      waitNoteEl.textContent = 'Открываем...';
+      waitNoteEl.className = 'unlock-note success';
+      setTimeout(grantAccessAndPrint, 500);
+    }
+  }, 500);
+}
+
+/* ---------- Пункт 4 фидбека: подсказка "Сохранить как PDF" терялась под кнопкой —
+   теперь это обязательный промежуточный шаг прямо перед вызовом печати, а не мелкий
+   текст сбоку, который легко пропустить ---------- */
+const prePrintOverlay = document.getElementById('prePrintOverlay');
+const prePrintGoBtn = document.getElementById('prePrintGoBtn');
+function showPrePrintInstruction(){
+  prePrintOverlay.classList.add('open');
+}
+prePrintGoBtn.addEventListener('click', ()=>{
+  prePrintOverlay.classList.remove('open');
+  window.print();
+});
+
+function initAll(){
+  renderFilters();
+  renderBoard();
+  renderRoleGrid();
+  renderRoleResult();
+  updateResume();
+}
+loadData();
+</script>

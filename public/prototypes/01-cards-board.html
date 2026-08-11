@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Идеи для резюме</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEF2E7;
+    --bg-deep: #E2E9D8;
+    --ink: #1E2B22;
+    --ink-soft: #4A5A4E;
+    --coral: #FF6B54;
+    --coral-deep: #E4523C;
+    --mustard: #F4B93F;
+    --sky: #7FB3C9;
+    --paper1: #FFF8EC;
+    --paper2: #FFEFE4;
+    --paper3: #EAF3F6;
+    --line: rgba(30,43,34,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255,255,255,0.5), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px;}
+
+  /* HERO */
+  header{
+    padding:56px 24px 40px;
+    text-align:center;
+    position:relative;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper1);
+    padding:6px 14px;
+    border-radius:20px;
+    transform:rotate(-2deg);
+  }
+  h1{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,5vw,54px);
+    line-height:1.08;
+    margin:22px auto 14px;
+    max-width:760px;
+    letter-spacing:-0.01em;
+  }
+  h1 .accent{color:var(--coral-deep); position:relative; white-space:nowrap;}
+  h1 .accent svg{position:absolute; left:0; bottom:-6px; width:100%; height:10px;}
+  header p{
+    font-size:17px;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 auto;
+    line-height:1.55;
+  }
+
+  /* TAG FILTER */
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin:34px 0 8px;
+  }
+  .chip{
+    font-family:'Space Mono',monospace;
+    font-size:13.5px;
+    padding:9px 16px;
+    border-radius:999px;
+    border:2px solid var(--ink);
+    background:var(--paper1);
+    cursor:pointer;
+    user-select:none;
+    transition:transform .12s ease, background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .chip:hover{transform:translateY(-2px);}
+  .chip.active{background:var(--coral); color:#fff; border-color:var(--coral-deep);}
+  .filters-hint{
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:36px;
+  }
+
+  /* BOARD */
+  .board{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+    gap:26px;
+    padding-top:10px;
+  }
+  .card{
+    --rot:-1.4deg;
+    background:var(--paper1);
+    border-radius:6px;
+    padding:22px 20px 20px;
+    box-shadow:0 10px 24px -12px rgba(30,43,34,0.35), 0 2px 0 rgba(30,43,34,0.05);
+    transform:rotate(var(--rot));
+    transition:transform .18s ease, box-shadow .18s ease;
+    position:relative;
+    border:1px solid var(--line);
+  }
+  .card:nth-child(3n+1){--rot:-1.6deg; background:var(--paper1);}
+  .card:nth-child(3n+2){--rot:1.2deg; background:var(--paper2);}
+  .card:nth-child(3n){--rot:-0.6deg; background:var(--paper3);}
+  .card:hover{transform:rotate(0deg) translateY(-4px); box-shadow:0 18px 30px -14px rgba(30,43,34,0.4);}
+  .pin{
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--coral) 60%, var(--coral-deep));
+    box-shadow:0 3px 6px rgba(0,0,0,0.25);
+  }
+  .card h3{
+    font-family:'Baloo 2',sans-serif;
+    font-size:19px;
+    font-weight:700;
+    margin:6px 0 12px;
+    line-height:1.25;
+  }
+  .tag-row{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .skill-tag{
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    padding:3px 9px;
+    border-radius:5px;
+    background:rgba(30,43,34,0.07);
+    color:var(--ink-soft);
+  }
+  .roles{
+    font-size:14px;
+    margin:0 0 14px;
+    padding-left:0;
+    list-style:none;
+  }
+  .roles li{
+    padding-left:18px;
+    position:relative;
+    margin-bottom:5px;
+    line-height:1.4;
+    color:var(--ink);
+  }
+  .roles li::before{
+    content:"→";
+    position:absolute; left:0; color:var(--coral-deep); font-weight:700;
+  }
+  .why-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    color:var(--coral-deep);
+    cursor:pointer;
+    padding:0;
+    font-weight:700;
+  }
+  .why-toggle::after{content:"↓"; transition:transform .2s ease;}
+  .why-toggle.open::after{transform:rotate(180deg);}
+  .comment{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease, margin-top .3s ease;
+    font-size:14px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    margin-top:0;
+  }
+  .comment.open{max-height:220px; margin-top:12px; padding-top:12px;}
+
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+    font-size:15px;
+    grid-column:1/-1;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:60px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:520px){
+    header{padding:40px 18px 28px;}
+    .board{grid-template-columns:1fr; gap:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">прототип · экран без квиза</span>
+    <h1>В тебе уже есть <span class="accent">материал для резюме</span><br>— просто пролистай</h1>
+    <p>Не нужно ничего заполнять. Отметь пару тегов, если хочешь — или просто листай карточки и смотри, что откликается.</p>
+  </header>
+
+  <div class="filters" id="filters"></div>
+  <div class="filters-hint">Выбери один или несколько тегов, чтобы сузить ленту — или ничего не выбирай</div>
+
+  <div class="board" id="board"></div>
+
+  <footer>Черновик карточек · 21 связка · для оценки тона, не финальная вёрстка</footer>
+</div>
+
+<script>
+const items = [
+  {id:"gaming_strategy", tags:["игры"], interest:"Играешь в стратегии (Civilization, StarCraft, Age of Empires)",
+   skills:["планирование ресурсов","решения под давлением времени","анализ данных"],
+   roles:["Помощник менеджера в магазине","Администратор в игровом клубе","Работа с таблицами/учётом"],
+   comment:"Стратегии учат распределять ограниченные ресурсы и просчитывать на несколько шагов вперёд — это ровно то, что делает администратор склада или помощник по логистике. Не «просто игра», а тренировка планирования."},
+  {id:"gaming_shooter_team", tags:["игры"], interest:"Играешь в командные шутеры (CS, Valorant) в команде",
+   skills:["координация с людьми","быстрая реакция","работа по ролям"],
+   roles:["Официант / бариста","Оператор call-центра","Работа на мероприятиях и фестивалях"],
+   comment:"Умение слаженно действовать в команде под давлением времени — именно это ищут в подработке официантом в час пик или на массовом мероприятии."},
+  {id:"drone_flying", tags:["техника","видео"], interest:"Летаешь на квадрокоптере, снимаешь видео",
+   skills:["пространственное мышление","работа с техникой","базовый видеомонтаж"],
+   roles:["Помощник блогера / фотографа","Видеооператор на мероприятиях","Съёмка недвижимости для риелторов"],
+   comment:"Пилотирование дрона — прикладной навык, который сейчас в дефиците. Риелторам, свадебным фотографам и локальным блогерам часто нужен именно человек с опытом съёмки с воздуха."},
+  {id:"pc_building", tags:["техника"], interest:"Собираешь и апгрейдишь компьютеры",
+   skills:["техническая диагностика","умение объяснять сложное просто","аккуратность"],
+   roles:["Консультант в магазине электроники","Помощник в сервисном центре","Техподдержка"],
+   comment:"Работодателю важно не то, что вы разбираете компьютеры для себя, а что вы умеете объяснить проблему клиенту, который в этом не разбирается вообще — это и есть ключевой навык техподдержки."},
+  {id:"series_medical", tags:["сериалы"], interest:"Смотришь медицинские сериалы (Доктор Хаус, Grey's Anatomy)",
+   skills:["интерес к диагностике и логике","устойчивость к стрессу (хотя бы в теории)"],
+   roles:["Волонтёр в больнице / хосписе","Помощник в аптеке","Администратор в медцентре"],
+   comment:"Если вас годами затягивает именно эта тема — это сигнал реального интереса к медицинской сфере, а не просто развлечение. Стоит явно упомянуть в резюме как мотивацию, а не скрывать."},
+  {id:"series_finance", tags:["сериалы","финансы"], interest:"Смотришь сериалы про финансы и бизнес (Миллиарды, Уолл-стрит)",
+   skills:["интерес к цифрам и структурам","понимание базовой бизнес-логики"],
+   roles:["Помощник бухгалтера","Ассистент в отделе продаж","Стажёр в банке"],
+   comment:"Даже без формального опыта в финансах устойчивый интерес к теме отличает вас от других кандидатов на позицию «помощник бухгалтера»: вы уже понимаете базовые термины и логику."},
+  {id:"cooking_baking", tags:["готовка"], interest:"Готовишь или печёшь дома, ведёшь блог рецептов",
+   skills:["соблюдение рецептуры и таймингов","работа руками под давлением времени","чистоплотность"],
+   roles:["Помощник повара / кондитера","Работа в кофейне","Фасовка на кухне в кафе"],
+   comment:"Домашняя готовка по рецептам — это по сути тренировка соблюдения технологии и таймингов, чего от вас и ждут на первой смене на кухне."},
+  {id:"pets_care", tags:["животные"], interest:"Ухаживаешь за питомцем, помогаешь животным",
+   skills:["ответственность за живое существо","терпение","регулярность и дисциплина"],
+   roles:["Выгул / передержка животных","Помощник в зоомагазине","Волонтёр в приюте"],
+   comment:"Ежедневный уход за питомцем без перерывов и выходных — готовый пример ответственности, который многие недооценивают, а стоит писать прямо в резюме."},
+  {id:"social_media_admin", tags:["соцсети"], interest:"Ведёшь свою страницу или паблик в соцсетях",
+   skills:["базовый копирайтинг","визуальное оформление","понимание вовлечения"],
+   roles:["SMM-ассистент","Помощник блогера","Ведение соцсетей для локального бизнеса"],
+   comment:"Малому бизнесу — кафе, салонам, репетиторам — часто нужен именно человек, который просто регулярно и без страха выкладывает посты. А у вас уже есть эта привычка."},
+  {id:"photo_hobby", tags:["фото","видео"], interest:"Увлекаешься фотографией",
+   skills:["композиция и свет","базовые редакторы (Lightroom/VSCO)","внимание к деталям"],
+   roles:["Помощник фотографа","Съёмка товаров для маркетплейсов","Фото для локальных мероприятий"],
+   comment:"Умение красиво снять на телефон — сейчас реальный прикладной навык: небольшим продавцам на маркетплейсах постоянно нужны качественные фото товаров."},
+  {id:"board_games_chess", tags:["настолки"], interest:"Играешь в шахматы или настольные игры",
+   skills:["стратегическое мышление","терпение","объяснение правил новичкам"],
+   roles:["Ведущий в настольном клубе","Вожатый в лагере","Репетитор для младших детей"],
+   comment:"Умение терпеливо объяснить правила новичку — тот же навык, что нужен вожатому в детском лагере: спокойно и понятно донести до ребёнка, что делать."},
+  {id:"sports_team", tags:["спорт"], interest:"Занимаешься командным видом спорта",
+   skills:["дисциплина","работа в команде","выносливость"],
+   roles:["Промоутер на мероприятиях","Ресепшн в фитнес-клубе","Вожатый спортивного лагеря"],
+   comment:"Регулярные тренировки годами — это уже готовый пример дисциплины и умения работать по расписанию, даже если вы никогда не думали об этом как о «навыке для резюме»."},
+  {id:"gardening", tags:["растения"], interest:"Выращиваешь растения или помогаешь на даче",
+   skills:["уход за долгосрочным процессом","наблюдательность","работа руками на улице"],
+   roles:["Помощник в питомнике / цветочном магазине","Работа в парке / благоустройстве","Летний садовник"],
+   comment:"Уход за растениями требует замечать мелкие изменения и действовать регулярно без напоминаний — именно это ищут в сезонных садовых работах."},
+  {id:"sewing_crafts", tags:["рукоделие"], interest:"Шьёшь, вяжешь или делаешь handmade",
+   skills:["мелкая моторика и аккуратность","следование схеме","терпение на долгих задачах"],
+   roles:["Помощник швеи / в ателье","Сборка украшений на производстве","Продавец в handmade-магазине"],
+   comment:"Способность долго и аккуратно доводить ручную работу до конца — навык, который прямо переносится на любую сборочную или швейную подработку."},
+  {id:"driving_license", tags:["вождение"], interest:"Есть права, уверенно водишь",
+   skills:["ответственность","ориентирование на местности","соблюдение правил"],
+   roles:["Курьер на авто","Доставка еды и товаров","Помощник в логистике"],
+   comment:"Права — это готовый прямой пропуск в курьерскую работу, один из самых доступных вариантов летней подработки без опыта."},
+  {id:"babysitting_siblings", tags:["дети"], interest:"Присматриваешь за младшими братьями или сёстрами",
+   skills:["ответственность за безопасность другого человека","терпение","умение занять ребёнка"],
+   roles:["Няня на неполный день","Вожатый в лагере","Помощник в детском центре"],
+   comment:"Опыт с младшими в семье — неформальный, но абсолютно реальный опыт присмотра за детьми. Стоит писать в резюме как есть, не стесняясь, что это «не официальная работа»."},
+  {id:"music_instrument", tags:["музыка"], interest:"Играешь на музыкальном инструменте",
+   skills:["дисциплина регулярной практики","работа по инструкции","выступления на публике"],
+   roles:["Аниматор / ведущий на мероприятиях","Помощник в музыкальной школе","Уличное выступление / подработка"],
+   comment:"Годы регулярных занятий инструментом — это дисциплина, которую тяжело получить иначе. А опыт выступлений снимает страх публичности, важный в любой работе с клиентами."},
+  {id:"languages_learning", tags:["языки"], interest:"Учишь иностранный язык или смотришь контент в оригинале",
+   skills:["самостоятельная дисциплина обучения","коммуникация с другой культурой"],
+   roles:["Помощник гида для туристов","Оператор поддержки на иностранном языке","Репетитор для начинающих"],
+   comment:"Даже средний уровень языка — уже конкурентное преимущество на позициях, где нужно хоть немного объясниться с иностранным клиентом или туристом."},
+  {id:"reading_books", tags:["книги"], interest:"Много читаешь",
+   skills:["грамотная письменная речь","усидчивость","широкий словарный запас"],
+   roles:["Помощник в библиотеке / книжном магазине","Модератор соцсетей","Описания товаров, тексты"],
+   comment:"Начитанность прямо конвертируется в грамотные тексты — а это то, чего многим работодателям не хватает даже у взрослых сотрудников."},
+  {id:"youtube_editing", tags:["видео"], interest:"Монтируешь видео для себя или друзей",
+   skills:["видеомонтаж (CapCut, Premiere)","чувство ритма и подачи","работа с дедлайнами"],
+   roles:["Помощник видеомонтажёра","Монтаж контента для локального бизнеса","Фриланс-подработка"],
+   comment:"Монтаж — один из немногих «домашних» навыков, который сразу монетизируется: локальным блогерам и малому бизнесу почти всегда нужен человек, который быстро и аккуратно смонтирует ролик."},
+  {id:"volunteering", tags:["волонтёрство"], interest:"Участвовал(а) в волонтёрстве, субботниках, акциях",
+   skills:["работа в команде с незнакомыми людьми","ответственность без контроля","инициативность"],
+   roles:["Промоутер / помощник на мероприятиях","Работа в НКО","Позиции, где ценят инициативу"],
+   comment:"Волонтёрский опыт — это реальный опыт работы, даже без зарплаты. Указывать его нужно так же серьёзно, как оплачиваемую работу: для многих работодателей это говорит об ответственности больше, чем формальный стаж."},
+  {id:"sports_fitness_solo", tags:["спорт"], interest:"Регулярно занимаешься в зале или бегаешь самостоятельно",
+   skills:["самодисциплина без внешнего контроля","постановка и достижение целей"],
+   roles:["Ресепшн в фитнес-клубе","Работа в спортивном магазине","Промо спортивных товаров"],
+   comment:"Способность регулярно тренироваться без тренера и напоминаний — редкий и ценный пример самодисциплины, который стоит явно прописать как качество, а не только как хобби."}
+];
+
+const allTags = [...new Set(items.flatMap(i => i.tags))].sort();
+const filtersEl = document.getElementById('filters');
+const boardEl = document.getElementById('board');
+let active = new Set();
+
+function renderFilters(){
+  filtersEl.innerHTML = allTags.map(t =>
+    `<button class="chip${active.has(t)?' active':''}" data-tag="${t}">${t}</button>`
+  ).join('');
+  filtersEl.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const t = chip.dataset.tag;
+      active.has(t) ? active.delete(t) : active.add(t);
+      renderFilters();
+      renderBoard();
+    });
+  });
+}
+
+function renderBoard(){
+  const filtered = active.size === 0
+    ? items
+    : items.filter(i => i.tags.some(t => active.has(t)));
+
+  if(filtered.length === 0){
+    boardEl.innerHTML = `<div class="empty">По этим тегам пока пусто — попробуй убрать один из фильтров</div>`;
+    return;
+  }
+
+  boardEl.innerHTML = filtered.map(item => `
+    <div class="card">
+      <div class="pin"></div>
+      <h3>${item.interest}</h3>
+      <div class="tag-row">${item.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <ul class="roles">${item.roles.map(r=>`<li>${r}</li>`).join('')}</ul>
+      <button class="why-toggle" data-id="${item.id}">Почему это работает</button>
+      <div class="comment" id="comment-${item.id}">${item.comment}</div>
+    </div>
+  `).join('');
+
+  boardEl.querySelectorAll('.why-toggle').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const c = document.getElementById('comment-'+btn.dataset.id);
+      c.classList.toggle('open');
+      btn.classList.toggle('open');
+    });
+  });
+}
+
+renderFilters();
+renderBoard();
+</script>
+</body>
+</html>
