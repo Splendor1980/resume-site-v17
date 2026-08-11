@@ -1,0 +1,27 @@
+# nginx для статической раздачи dist/ (RU-VPS: Timeweb / Selectel / Beget).
+# TODO: заменить вашдомен.ру на реальный домен.
+server {
+    listen 80;
+    server_name вашдомен.ру www.вашдомен.ру;
+
+    root /var/www/resume-site;   # сюда кладём dist/
+    index index.html;
+
+    # Astro-статика: /idei/<id>/ → /idei/<id>/index.html, /konstruktor/ → index.html
+    location / {
+        try_files $uri $uri/ =404;
+        # для SPA-подобной отдачи всех путей на index.html раскомментируй:
+        # try_files $uri $uri/ /index.html;
+    }
+
+    # кэш для статики (хешированные ассеты из _astro/)
+    location /_astro/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+    location /data/ {
+        add_header Cache-Control "public, max-age=3600";
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}
