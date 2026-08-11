@@ -10,7 +10,7 @@
     "preview": "astro preview",
     "sync:data": "node scripts/sync-data.mjs",
     "prebuild": "node scripts/sync-data.mjs",
-    "test:e2e": "node scripts/test-constructor.mjs",
+    "test:e2e": "node scripts/run-e2e.mjs",
     "astro": "astro"
   },
   "dependencies": {

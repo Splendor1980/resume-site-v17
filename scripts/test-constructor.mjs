@@ -1,7 +1,6 @@
 // E2E-проверка Astro-сборки: статические SEO-страницы + «остров»-конструктор.
-// Запуск: npx playwright install chromium (один раз), потом npm run test:e2e или:
-//   npx astro preview --port 4321   (в одной вкладке) и
-//   node scripts/test-constructor.mjs  (в другой, до пересборки не упоминает dist)
+// Просто: npm run build, потом npm run test:e2e   (сервер поднимет scripts/run-e2e.mjs).
+// Или вручную: npx astro preview --port 4321, потом BASE_URL=http://localhost:4321 node scripts/test-constructor.mjs
 import { chromium } from 'playwright';
 
 const BASE = process.env.BASE_URL || 'http://localhost:4321';
