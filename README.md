@@ -92,7 +92,8 @@ src/                    — Astro-приложение (SSG под SEO), мас�
 public/                 — статика, попадающая в dist как есть
   data/ideas.json       — рабочая копия для runtime-fetch конструктора (автообновляется сборкой)
   prototypes/, README.md, favicon.svg, og-cover.svg, robots.txt
-astro.config.mjs        — site (=TODO-домен), trailingSlash, @astrojs/sitemap (конструктор исключён)
+astro.config.mjs        — site (=https://resumegenerator.ru), trailingSlash, @astrojs/sitemap
+                            (конструктор исключён)
 scripts/
   sync-data.mjs         — копирует data/prototypes/README в public/ (вызывается prebuild)
   run-e2e.mjs           — обёртка теста: сама поднимает «astro preview» на :4321, ждёт готовности,
@@ -131,9 +132,9 @@ data/                    — источник истины (см. выше), и�
     SEO-страницы на сборке) + рабочая копия `public/data/ideas.json` для runtime-fetch()
     конструктора. Копию обновляет `scripts/sync-data.mjs` при каждом `npm run build` — руками
     ничего не трогаем.
-  - **Местоположение/`site` в `astro.config.mjs` — TODO**: пока заглушка `https://resume-site.example.ru`,
-    на неё указывают canonical/OG/sitemap/robots. После покупки домена (шаг 3 плана) — правка
-    одной строки в конфиге + `public/robots.txt`.
+  - **Домен вписан**: `site` в `astro.config.mjs` и `Sitemap:` в `public/robots.txt` =
+    **`https://resumegenerator.ru`** (куплен на reg.ru), на него указывают canonical/OG/sitemap.
+    Канонический адрес — без `www`; редирект `www` → без `www` делаем на DNS/хостинге (шаг 3).
 - **Стек**: выбран **Astro** — статическая генерация страниц под SEO + "острова" интерактивности
   только там, где нужны (конструктор резюме). Astro не привязан к конкретному хостингу.
 - **Хостинг — НЕ Vercel**: изначально рассматривался Vercel, но отклонён. Причины: (1) российские
@@ -522,8 +523,7 @@ data/                    — источник истины (см. выше), и�
 1. [x] Сбор данных (Яндекс.Метрика) — сделано, см. выше
 2. [x] Переход на Astro для статических SEO-страниц — сделано, см. статус и раздел «Структура»:
        лендинг `/`, 103 статические страницы `/idei/<id>/` из `ideas.json`, конструктор «остров» на
-       `/konstruktor/`. Осталось по этому пункту: купить домен и вписать его в `astro.config.mjs`
-       (сейчас там TODO-заглушка для canonical/sitemap).
+       `/konstruktor/`. Домен вписан (https://resumegenerator.ru). См. шаг 3 — хостинг.
 3. [ ] Покупка RU-домена + раздача на реальном хостинге (Yandex Cloud Object Storage / RU VPS,
       не Vercel — см. решение про хостинг выше). Пока сайт живёт только локально и в репо;
       деплой-конфиги и инструкция уже готовы (`deploy/` + `docs/DEPLOY.md`)
@@ -542,11 +542,11 @@ data/                    — источник истины (см. выше), и�
 
 - [ ] [ты] Выбрать хостинг по критериям из README (раздел «Хостинг — НЕ Vercel»):
       Yandex Cloud Object Storage, либо RU-VPS (Timeweb Cloud / Selectel / Beget). Оплата
-      и юрисдикция в РФ, без зарубежных привязок.
-- [ ] [ты] Зарегистрировать RU-домен (любой регистратор, принимающий российские карты).
-- [ ] [ты] Прислать сюда домен → [я] сделаю правки: `site` в `astro.config.mjs`,
-      `Sitemap:` в `public/robots.txt` (пересборка автоматически поправит canonical/OG/sitemap).
-      Остальная часть кода от домена не зависит.
+      и юрисдикция в РФ, без зарубежных привязок. Домен уже готов (resumegenerator.ru).
+- [x] [ты] Зарегистрировать RU-домен — сделано: **resumegenerator.ru** на reg.ru.
+- [x] [ты] Прислать сюда домен → [я] правки — сделано: `site` в `astro.config.mjs` и
+      `Sitemap:` в `public/robots.txt` = `https://resumegenerator.ru`. Canonical без `www`;
+      редирект `www` → без `www` задать на DNS/хостинге при настройке шага 3.
 - [x] [я] Подготовить деплой-конфиги, которые закроют любой из выбранных вариантов:
       `deploy/Dockerfile` + `deploy/nginx.conf.sample` (для VPS на Node) и
       `deploy/deploy-yandex.sh` для выгрузки `dist/` в Object Storage (шаблон переменных —

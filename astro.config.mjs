@@ -1,9 +1,8 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// САЙТ ПУБЛИЧНОГО ДОМЕНА — TODO: поставить реальный домен после покупки (см. README, "Хостинг").
-// Пока стоит заглушка: canonical/sitemap/OG-ссылки ведут сюда, после покупки домена правка одной строки.
-const SITE = 'https://resume-site.example.ru';
+// Канонический адрес сайта (без www; редирект www → без www настраивается на DNS/хостинге).
+const SITE = 'https://resumegenerator.ru';
 
 export default defineConfig({
   site: SITE,

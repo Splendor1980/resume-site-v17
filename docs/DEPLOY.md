@@ -72,8 +72,8 @@ npm run test:e2e   # headless-проверка (Playwright): 103 карточк�
 
 ## 2. Перед продакшеном: чек-лист (TODO в коде/README)
 
-- [ ] Вписать реальный домен в `astro.config.mjs` (`site`) — сейчас заглушка `https://resume-site.example.ru`
-- [ ] Обновить `public/robots.txt` (Sitemap-адрес) — пересобрать
+- [x] Вписать реальный домен в `astro.config.mjs` (`site`) — сделано: `https://resumegenerator.ru`
+- [x] Обновить `public/robots.txt` (Sitemap-адрес) — сделано, сборка перегенерирует
 - [ ] Вставить реальный `YM_COUNTER_ID` в `src/components/Metrika.astro` и (после ручной вставки
       в index-рендер) noscript-пиксель — Вебвизор не включаем (решение в README)
 - [ ] Прогнать `npm run test:e2e` против собранной версии

@@ -50,8 +50,9 @@ npm run test:e2e          # headless-проверка конструктора �
 - Деплой-слой готов (`deploy/` + `docs/DEPLOY.md`), ждёт выбора хостинга и домена.
 
 Не сделано / «TODO» по коду:
-- `astro.config.mjs` + `public/robots.txt` — домен-заглушка `https://resume-site.example.ru`
-  (вписать после покупки домена).
+- Домен **вписан**: `astro.config.mjs` + `public/robots.txt` = `https://resumegenerator.ru`
+  (куплен на reg.ru; canonical без `www`, редирект `www` зададим на DNS/хостинге). Осталось
+  связать с хостингом.
 - `src/components/Metrika.astro` — `YM_COUNTER_ID = null` (вписать реальный после регистрации
   счётчика; Вебвизор не включаем).
 - `src/components/Constructor.astro` — `VERIFY_FUNCTION_URL = ''` (URL Cloud Function проверки
