@@ -101,6 +101,9 @@ scripts/
                           это то, что реально вызывает npm run test:e2e)
   test-constructor.mjs  — сами проверки: 103 карточки, фильтры, add/toggle, режимы, чат, дровер,
                           SEO-ссылка на статику, лендинг, список идей
+  upload-yandex.mjs     — выгрузка dist/ в Yandex Cloud Object Storage (AWS SDK, без глобального CLI):
+                          node scripts/upload-yandex.mjs {buckets|sync [--delete]|configure}
+                          (ключи из deploy/.env, см. см. docs/DEPLOY.md)
 data/                    — источник истины (см. выше), из него генерируются и статика в /idei,
                            и (через public-копию) доска в конструкторе
 ```

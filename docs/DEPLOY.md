@@ -29,24 +29,26 @@ npm run test:e2e   # headless-проверка (Playwright): 103 карточк�
 2. Установить Yandex Cloud CLI: https://cloud.yandex.ru/docs/cli/quickstart
    (`powershell -ExecutionPolicy Bypass -Command "irm https://storage.yandexcloud.net/yandexcloud-yc/install.ps1 | iex"`)
    выполнить `yc init` (залогиниться, выбрать каталог).
-3. Создать бакет с публичным доступом и включить на нём «Веб-хостинг» (index document = `index.html`,
-   error document = `index.html`):
+3. Создать бакет **с именем, совпадающим с доменом** (например `resumegenerator.ru` — это требование
+   Я.Object Storage для привязки своего домена) и включить в нём «Веб-хостинг» (index = `index.html`).
+   Через консоль (Бакет → Настройки → Виртуальный хостинг) либо командой YC CLI.
+4. Завести сервисный аккаунт с ролью `storage.editor`, создать «статический ключ доступа»
+   (ACCESS KEY ID + SECRET KEY) и сохранить их в `deploy/.env` (шаблон `deploy/.env.example`).
+   **Выгрузка без глобального AWS CLI** (рекомендуется): установить dev-зависимость уже есть, просто:
    ```
-   yc storage bucket create <имя-бакета> --public-read
-   yc storage bucket update <имя-бакета> --website-settings "{index: 'index.html', error: '404.html'}"
+   npm run build
+   node scripts/upload-yandex.mjs sync --delete
+   node scripts/upload-yandex.mjs configure
    ```
-4. Выгрузить сборку (скрипт [deploy/deploy-yandex.sh](../deploy/deploy-yandex.sh), настройки —
-   из `deploy/.env.example`): потребуются статический ключ доступа сервисного аккаунта
-   (роль `storage.editor`) и установленный AWS CLI v2 / s3cmd.
-   ```
-   cd deploy
-   set -a; source .env; set +a       # вписать ключи в .env заранее
-   bash deploy-yandex.sh
-   ```
-5. Публичный адрес бакета вида `https://<бакет>.storage.yandexcloud.net/` — временный.
-6. **Домен** (обязателен для SEO/HTTPS): купить `.ru`, в DNS добавить CNAME на адрес бакета,
-   в консоли заказать TLS-сертификат на домен. После покупки домена вписать его в
-   `astro.config.mjs` (`site`) и в `public/robots.txt` (Sitemap), пересобрать и выгрузить заново.
+   (`configure` включает хостинг и публичный доступ; управление ACL может потребовать
+   роли `storage.configEditor`, если «Публичный доступ» не включён в консоли).
+   Альтернатива с AWS CLI — старый скрипт [deploy/deploy-yandex.sh](../deploy/deploy-yandex.sh).
+5. Публичная проверка: `https://<бакет>.storage.yandexcloud.net/index.html` — должен отдать 200.
+6. **Домен → бакет** (обязательно для SEO/HTTPS): в консоли «Бакет → Виртуальный хостинг → Свои
+   домены» добавить `resumegenerator.ru` (и при желании `www.resumegenerator.ru`) — консоль покажет
+   DNS-запись, которую нужно создать. Она же (CNAME/A) создаётся в DNS у регистратора (reg.ru).
+   TLS-сертификат на домен Яндекса выдаётся автоматически. После появления DNS сайт доступен
+   по `https://resumegenerator.ru`.
 
 ### Вариант B — RU-VPS (Timeweb Cloud / Selectel / Beget) с nginx
 

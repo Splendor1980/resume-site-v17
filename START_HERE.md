@@ -35,7 +35,8 @@ npm run test:e2e          # headless-проверка конструктора �
   `idei/index.astro` (список), `konstruktor.astro` (обёртка конструктора).
 - `src/components/Constructor.astro` — сам конструктор («остров», порт `index.html`).
 - `src/components/Metrika.astro`, `src/layouts/BaseLayout.astro` (SEO-голова + JSON-LD).
-- `scripts/` — `sync-data.mjs` (копия данных), `run-e2e.mjs` + `test-constructor.mjs` (E2E).
+- `scripts/` — `sync-data.mjs` (копия данных), `run-e2e.mjs` + `test-constructor.mjs` (E2E),
+  `upload-yandex.mjs` (выгрузка в Yandex Object Storage, ключи в `deploy/.env`).
 - `deploy/` — деплой-слой: `Dockerfile`, `nginx.conf.sample`, `deploy-yandex.sh`,
   `.env.example` (для Yandex Object Storage).
 - `docs/DEPLOY.md` — как разворачивать (Yandex Cloud / RU VPS / GitHub Pages-тест), чек-лист, KPI.
