@@ -1,26 +1,15 @@
 ---
 // Яндекс.Метрика — базовый сбор статистики (просмотры, источники).
-// TODO: вставить реальный YM_COUNTER_ID после регистрации на metrika.yandex.ru.
 // Вебвизор и карта кликов ОТКЛЮЧЕНЫ намеренно: аудитория включает несовершеннолетних,
 // а Вебвизор пишет детальную запись сессии (мышь, вводимый текст). Базовых просмотров достаточно.
-const YM_COUNTER_ID = null; // пример: 12345678
+// Примечание: is:inline выводит содержимое как есть (выражения не обрабатываются), поэтому ID вписан жёстко.
+const YM_COUNTER_ID = 111722479;
 ---
-{
-  YM_COUNTER_ID ? (
-    <script is:inline>
-      (function(m,e,t,r,i,k,a){{
-        m[i]=m[i]||function(){{(m[i].a=m[i].a||[]).push(arguments)}};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {{if (document.scripts[j].src === r) {{ return; }}}}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-      }})(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-      ym({YM_COUNTER_ID}, "init", {{
-        clickmap: false,
-        trackLinks: true,
-        accurateTrackBounce: true,
-        webvisor: false
-      }});
-    </script>
-  ) : null
-} 
-<!-- noscript-пиксель метрики: раскомментировать после вставки YM_COUNTER_ID выше -->
+<script is:inline>
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=111722479","ym");
+ym(111722479,"init",{clickmap:false,trackLinks:true,accurateTrackBounce:true,webvisor:false});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/111722479" style="position:absolute;left:-9999px;" alt="" /></div></noscript>

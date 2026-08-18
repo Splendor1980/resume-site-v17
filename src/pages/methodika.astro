@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ideasJson from '../../data/ideas.json';
+
+const withResearch = ideasJson.items.filter((i) => i.research);
+
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'О методологии — откуда берутся идеи для резюме',
+  inLanguage: 'ru-RU',
+  url: site + '/methodika/',
+  about: {
+    '@type': 'WebSite',
+    name: 'Резюме без опыта',
+    url: site + '/',
+  },
+});
+---
+
+<BaseLayout
+  title="Методология: откуда берутся идеи для резюме без опыта"
+  description="Как собирается база 103 идей: подходы Ramit Sethi и Laszlo Bock, инфостиль, честный взгляд на исследования. Каждая карточка — методика «хобби → навыки → роль»."
+  structuredData={structuredData}
+>
+  <Header />
+  <main>
+    <div class="wrap" style="padding-top:8px;">
+      <p class="crumbs">
+        <a href="/">Главная</a> / О методологии
+      </p>
+    </div>
+
+    <section class="idea-hero">
+      <span class="eyebrow">о проекте · прозрачно</span>
+      <h1>Откуда берутся идеи в этом конструкторе</h1>
+      <p class="idea-lede">
+        Резюме без опыта — не «угадывание» текста и не болванка-магия. Каждая из 103 карточек
+        собрана по трём проверенным методикам, а там, где данных не было, мы это прямо говорим.
+      </p>
+    </section>
+
+    <div class="idea-body">
+      <div class="idea-panel">
+        <h2>🧩 Принцип: хобби → навыки → роль</h2>
+        <p style="margin:0; font-size:14.5px; line-height:1.65;">
+          У человека без трудового стажа опыта нет только в формальном смысле: он есть в том, чем
+          человек реально занимается. Игры, спорт, сериалы, рукоделие — любой hobby раскладывается
+          на конкретные навыки (планирование, работа в команде, внимание к деталям), а навыки —
+          на роль, куда работодателю такой человек подходит. Ни одна карточка не говорит
+          «играешь в игры — иди в киберспорт», каждая связывает занятие с <b>реальными рабочими
+          обязанностями</b>.
+        </p>
+      </div>
+
+      <div class="idea-panel">
+        <h2>📗 Подход Ramit Sethi — «чем ты занимаешься» важнее «где работал»</h2>
+        <p style="margin:0; font-size:14.5px; line-height:1.65;">
+          Методика, известная как Briefcase Technique: навыки из жизни переносятся в резюме как
+          конкретные результаты своей деятельности, а не абстрактные «стрессоустойчивость» и
+          «коммуникабельность». Поэтому в наших карточках навыки сформулированы как действия, а
+          не прилагательные — их можно подтвердить на собеседовании.
+        </p>
+      </div>
+
+      <div class="idea-panel">
+        <h2>📘 Подход Laszlo Bock — что ценят работодатели на самом деле</h2>
+        <p style="margin:0; font-size:14.5px; line-height:1.65;">
+          Бывший HR-директор Google в книге «Work Rules!» разбирает, что наниматели реально ищут
+          у кандидатов без стажа: умение решать задачи, настойчивость, коммуникацию. Наш блок
+          «Ценность» и «Почему это интересно работодателю» написан именно под эти критерии —
+          чтобы формулировки отвечали на вопрос «зачем меня нанимать», а не перечисляли «что я
+          умею».
+        </p>
+      </div>
+
+      <div class="idea-panel">
+        <h2>✍️ Инфостиль — коротко, по делу, без воды</h2>
+        <p style="margin:0; font-size:14.5px; line-height:1.65;">
+          Тексты карточек собраны по правилам инфостиля (Максим Ильяхов и Людмила Сарычева):
+          конкретика вместо абстракций, глаголы вместо «ответственно выполнял», осторожность с
+          канцеляритом. Резюме — деловой документ, и его текст должен пройти проверку
+          работодателем за 20–30 секунд.
+        </p>
+      </div>
+
+      <div class="idea-panel">
+        <h2>🔬 Исследования — только там, где они есть на самом деле</h2>
+        <p style="margin:0; font-size:14.5px; line-height:1.65;">
+          Обычный маркетинговый сайт написал бы про каждую карточку «учёные подтверждают».
+          Мы так не делаем: <b>реальные источники есть только у {withResearch.length} карточек</b>{' '}
+          из {ideasJson.items.length}, и они помечены блоком «Исследования». Остальное — прикладная
+          логика HR-комментариев, а не научные факты. Честный подход важнее красивого слова.
+        </p>
+
+        <div style="margin-top:14px; display:grid; gap:12px;">
+          {withResearch.map((item) => (
+            <div class="research-block">
+              <div class="rb-label">🔬 {item.activity_title || item.category}</div>
+              <div>{item.research.summary}</div>
+              {item.research.caveat && <div class="rb-caveat">⚠️ {item.research.caveat}</div>}
+              <div class="rb-source">
+                Источник:{' '}
+                <a href={item.research.source_url} target="_blank" rel="noopener">
+                  {item.research.source_name}
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="idea-cta">
+        <p>
+          <b>Хочешь собрать резюме по этой методике?</b><br />
+          Выбери пару занятий — и навыки подставятся сами по готовым формулировкам.
+        </p>
+        <a class="cta-btn" href="/konstruktor/">Открыть конструктор →</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
