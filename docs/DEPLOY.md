@@ -81,9 +81,16 @@ npm run test:e2e   # headless-проверка (Playwright): 103 карточк�
 
 - [x] Вписать реальный домен в `astro.config.mjs` (`site`) — сделано: `https://resumegenerator.ru`
 - [x] Обновить `public/robots.txt` (Sitemap-адрес) — сделано, сборка перегенерирует
-- [ ] Вставить реальный `YM_COUNTER_ID` в `src/components/Metrika.astro` и (после ручной вставки
-      в index-рендер) noscript-пиксель — Вебвизор не включаем (решение в README)
-- [ ] Прогнать `npm run test:e2e` против собранной версии
+- [x] Вставить реальный `YM_COUNTER_ID` в `src/components/Metrika.astro` (ID 111722479) +
+      noscript-пиксель — сделано (Вебвизор не включаем, решение в README)
+- [x] Прогнать `npm run test:e2e` против собранной версии — PASS (локаль + live по https)
+- [x] HTTPS на домен: сертификат Let's Encrypt выпущен (`CN=resumegenerator.ru`,
+      действителен до 16.11.2026); `http://` отдаёт 301 → `https://` — работает
+- [ ] **Вебмастер: выставить главное зеркало `https://resumegenerator.ru`** (иначе Яндекс
+      может склеить http/https как два сайта) — действие в панели Вебмастера
+- [ ] CNAME `www` → `resumegenerator.ru` в Cloud DNS (сейчас `www` не резолвится,
+      редирект www → без-www ещё не настроен)
+- [ ] Ротация статического ключа S3 в `deploy/.env` (новый ключ — в консоли Yandex Cloud)
 - [ ] Проверить с 2-3 устройств (десктоп/мобайл) доступ к `/`, `/konstruktor/`, нескольким `/idei/`
 - [ ] Проверить печать PDF: >2 идей → кнопка «Скачать PDF» → модалка → «Сохранить как PDF»
 
