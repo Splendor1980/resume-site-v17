@@ -11,7 +11,8 @@ function fail(msg) {
 }
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const context = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'], viewport: { width: 1440, height: 900 } });
+const page = await context.newPage();
 const errors = [];
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
@@ -74,6 +75,28 @@ await page.waitForSelector('#drawerOverlay.open');
 if (!(await page.locator('.drawer h3').textContent()).trim()) fail('drawer empty');
 await page.locator('.drawer-close').click();
 console.log('drawer: OK');
+
+// разблокировка PDF: модалка «Секунду, прежде чем скачать» + кнопки копирования
+await page.evaluate(() => localStorage.clear());
+await page.goto(BASE + '/konstruktor/', { waitUntil: 'load' });
+await page.waitForSelector('.card');
+if ((await page.locator('.card').count()) < 103) fail('cards missing after reload');
+await page.locator('.card .add-btn').nth(0).click();
+await page.locator('.card .add-btn').nth(1).click();
+const ctaBefore = await page.locator('#ctaLock').getAttribute('class');
+if (!ctaBefore.includes('ready')) fail('ctaLock not ready before unlock');
+await page.click('#ctaLock');
+await page.waitForSelector('#unlockOverlay.open');
+await page.click('#postVariants .pv-copy-btn');
+await page.waitForSelector('#postVariants .pv-copy-btn:has-text("Скопировано")', { timeout: 5000 });
+const vkHref = await page.locator('#postVariants .pv-vk-btn').first().getAttribute('href');
+if (!vkHref || !vkHref.includes('vk.com/share.php')) fail('vk share button missing');
+await page.fill('#postLinkInput', 'https://vk.com/wall1_2');
+await page.click('#confirmShareBtn');
+await page.waitForSelector('#unlockOverlay:not(.open)', { state: 'attached', timeout: 8000 });
+const unlocked = await page.evaluate(() => !!localStorage.getItem('resumeSiteUnlockedAt'));
+if (!unlocked) fail('unlock did not persist to localStorage');
+console.log('unlock modal + copy buttons: OK');
 
 // SEO-ссылка карточки -> статическая страница
 const href = await page.locator('.card h3 a').first().getAttribute('href');

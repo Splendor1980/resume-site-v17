@@ -99,6 +99,9 @@
   .post-variant .pv-text{font-size:12.5px; line-height:1.5; margin-bottom:8px; white-space:pre-wrap;}
   .pv-copy-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer;}
   .pv-copy-btn:hover{background:var(--paper2);}
+  .pv-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .pv-vk-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; text-decoration:none; color:inherit;}
+  .pv-vk-btn:hover{background:var(--paper2);}
   .post-link-input{width:100%; font-family:'Manrope',sans-serif; font-size:13px; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--white); margin-bottom:10px;}
   .unlock-confirm-btn{width:100%; font-family:'Manrope',sans-serif; font-weight:700; font-size:13.5px; background:var(--coral); color:#fff; border:none; border-radius:8px; padding:12px; cursor:pointer;}
   .unlock-confirm-btn:hover{background:var(--coral-deep);}
@@ -993,10 +996,12 @@ const ACCESS_DURATION_MS = 24 * 60 * 60 * 1000;   // доступ действу
 const WAIT_MS = 10 * 60 * 1000;                   // бесплатное ожидание — 10 минут
 const WAIT_START_KEY = 'resumeSiteWaitStart';
 
+const SITE_URL = 'https://resumegenerator.ru';
+
 const POST_VARIANTS = [
-  "90% резюме школьников и студентов начинаются одинаково: «Опыта работы не имею». А ведь опыт чаще всего есть — просто прячется не в трудовой книжке, а в кружке робототехники, в шахматном клубе или в паблике на 800 подписчиков, который ты ведёшь два года. Этот сайт помогает такое увидеть и грамотно написать — бесплатно, за 10 минут.\n[ссылка на сайт]",
-  "Работодателю не нужен твой опыт. Ему нужны доказательства, что ты умеешь делать дело — а они чаще всего прячутся не в трудовой книжке, а в том, чем ты увлекаешься по вечерам. Если знаешь кого-то, кто сейчас смотрит на пустое резюме и не понимает, что туда писать — кинь ему эту ссылку.\n[ссылка на сайт]",
-  "Резюме без опыта — не оксюморон. Это просто резюме, которое пока никто не помог написать правильно. Помогли — вот тут, бесплатно.\n[ссылка на сайт]"
+  "90% резюме школьников и студентов начинаются одинаково: «Опыта работы не имею». А ведь опыт чаще всего есть — просто прячется не в трудовой книжке, а в кружке робототехники, в шахматном клубе или в паблике на 800 подписчиков, который ты ведёшь два года. Этот сайт помогает такое увидеть и грамотно написать — бесплатно, за пару минут.\n" + SITE_URL,
+  "Работодателю не нужен твой опыт. Ему нужны доказательства, что ты умеешь делать дело — а они чаще всего прячутся не в трудовой книжке, а в том, чем ты увлекаешься по вечерам. Если знаешь кого-то, кто сейчас смотрит на пустое резюме и не понимает, что туда писать — кинь ему эту ссылку.\n" + SITE_URL,
+  "Резюме без опыта — не оксюморон. Это просто резюме, которое пока никто не помог написать правильно. Помогли — вот тут, бесплатно.\n" + SITE_URL
 ];
 
 function isUnlocked(){
@@ -1037,22 +1042,45 @@ document.querySelectorAll('.unlock-tab').forEach(tab=>{
   });
 });
 
+function copyText(text){
+  return (async ()=>{
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch(e){}
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch(e){ return false; }
+  })();
+}
+
 function renderPostVariants(){
+  const shareUrl = 'https://vk.com/share.php?url=' + encodeURIComponent(SITE_URL)
+    + '&title=' + encodeURIComponent('Резюме без опыта работы — конструктор и 100+ идей');
   postVariantsEl.innerHTML = POST_VARIANTS.map((text, i)=>`
     <div class="post-variant">
       <div class="pv-text">${esc(text)}</div>
-      <button class="pv-copy-btn" data-idx="${i}">📋 Скопировать</button>
+      <div class="pv-actions">
+        <button class="pv-copy-btn" data-idx="${i}">📋 Скопировать</button>
+        <a class="pv-vk-btn" href="${shareUrl}" target="_blank" rel="noopener">ВКонтакте</a>
+      </div>
     </div>`).join('');
   postVariantsEl.querySelectorAll('.pv-copy-btn').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const idx = parseInt(btn.dataset.idx, 10);
-      try{
-        await navigator.clipboard.writeText(POST_VARIANTS[idx]);
-        btn.textContent = '✓ Скопировано';
-        setTimeout(()=>{ btn.textContent = '📋 Скопировать'; }, 1800);
-      } catch(e){
-        btn.textContent = 'Не вышло — выдели текст вручную';
-      }
+      const ok = await copyText(POST_VARIANTS[idx]);
+      btn.textContent = ok ? '✓ Скопировано' : 'Не вышло — выдели текст вручную';
+      if(ok) setTimeout(()=>{ btn.textContent = '📋 Скопировать'; }, 1800);
     });
   });
 }
