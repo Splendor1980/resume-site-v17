@@ -86,10 +86,12 @@ npm run test:e2e   # headless-проверка (Playwright): 103 карточк�
 - [x] Прогнать `npm run test:e2e` против собранной версии — PASS (локаль + live по https)
 - [x] HTTPS на домен: сертификат Let's Encrypt выпущен (`CN=resumegenerator.ru`,
       действителен до 16.11.2026); `http://` отдаёт 301 → `https://` — работает
-- [ ] **Вебмастер: выставить главное зеркало `https://resumegenerator.ru`** (иначе Яндекс
-      может склеить http/https как два сайта) — действие в панели Вебмастера
-- [ ] CNAME `www` → `resumegenerator.ru` в Cloud DNS (сейчас `www` не резолвится,
-      редирект www → без-www ещё не настроен)
+- [x] **Вебмастер: главное зеркало `https://resumegenerator.ru`** — домен подтверждён
+      (файл в корне), зеркало определяется автоматически по 301 https/без-www (в
+      «Страницах в поиске» значится `https://resumegenerator.ru`)
+- [x] `www` → без-www: бакет-редирект `www.resumegenerator.ru` (режим «Переадресация»
+      на `https://resumegenerator.ru`), CNAME `www` → `www.resumegenerator.ru.website.yandexcloud.net`.
+      Проверено: `https://www.resumegenerator.ru/` → 301 → без-www, TLS 1.3, без предупреждений.
 - [ ] Ротация статического ключа S3 в `deploy/.env` (новый ключ — в консоли Yandex Cloud)
 - [ ] Проверить с 2-3 устройств (десктоп/мобайл) доступ к `/`, `/konstruktor/`, нескольким `/idei/`
 - [ ] Проверить печать PDF: >2 идей → кнопка «Скачать PDF» → модалка → «Сохранить как PDF»
