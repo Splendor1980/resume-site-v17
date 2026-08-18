@@ -113,6 +113,22 @@
   .pre-print-steps{display:flex; flex-direction:column; gap:10px; margin:18px 0;}
   .pre-print-step{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-size:13.5px; text-align:left; line-height:1.4;}
 
+  /* Воздушный пузырь бонуса (комикс-стиль) после разблокировки */
+  .bonus-bubble{position:fixed; right:18px; bottom:18px; z-index:300; max-width:min(380px, 92vw); background:var(--bg); border:2px solid var(--ink); border-radius:14px; box-shadow:0 18px 40px -14px rgba(30,43,34,0.45); padding:16px 16px 14px; display:none;}
+  .bonus-bubble.open{display:block; animation:popIn .28s ease;}
+  @keyframes popIn{from{opacity:0; transform:translateY(14px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);}}
+  .bonus-bubble::before{content:""; position:absolute; top:-13px; right:26px; width:22px; height:22px; background:var(--bg); border-left:2px solid var(--ink); border-top:2px solid var(--ink); transform:rotate(45deg);}
+  .bonus-eyebrow{font-family:'Space Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--coral-deep); font-weight:700; margin-bottom:5px;}
+  .bonus-bubble h4{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 6px;}
+  .bonus-bubble p{font-size:12.5px; line-height:1.5; color:var(--ink); margin:0 0 10px;}
+  .bonus-prompt{width:100%; font-family:'Manrope',sans-serif; font-size:12px; line-height:1.45; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:10px 12px; color:var(--ink); resize:none; min-height:96px; margin-bottom:10px; box-sizing:border-box;}
+  .bonus-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .bonus-copy-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; flex:1; min-width:120px;}
+  .bonus-copy-btn:hover{background:var(--coral-deep);}
+  .bonus-link-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:8px 12px; text-decoration:none; color:inherit;}
+  .bonus-link-btn:hover{background:var(--paper2);}
+  .bonus-close{position:absolute; top:10px; right:12px; background:none; border:none; font-size:14px; color:var(--ink-soft); cursor:pointer; padding:2px 6px;}
+
   /* RIGHT */
   .board-pane{padding:32px 28px 60px; position:relative;}
   .board-header{max-width:640px; margin-bottom:18px;}
@@ -312,6 +328,20 @@
       </div>
 
       <p class="unlock-footnote">Доступ действует 24 часа с момента разблокировки — потом нужно будет открыть заново одним из способов выше.</p>
+    </div>
+  </div>
+
+  <!-- Воздушный пузырь бонуса: подготовка к устному собеседованию -->
+  <div class="bonus-bubble" id="bonusBubble">
+    <button class="bonus-close" id="bonusClose">✕</button>
+    <div class="bonus-eyebrow">🎁 бонус за то, что поделился</div>
+    <h4>Потренируй собеседование с ИИ</h4>
+    <p>Скопируй промт и вставь его первым сообщением в Гигачате или Алисе (текстом или голосом) — ИИ станет рекрутером и проведёт репетицию.</p>
+    <textarea class="bonus-prompt" id="bonusPrompt" readonly></textarea>
+    <div class="bonus-actions">
+      <button class="bonus-copy-btn" id="bonusCopyBtn">📋 Скопировать промт</button>
+      <a class="bonus-link-btn" href="https://giga.chat/" target="_blank" rel="noopener">Гигачат</a>
+      <a class="bonus-link-btn" href="https://alice.yandex.ru/" target="_blank" rel="noopener">Алиса</a>
     </div>
   </div>
 
@@ -887,6 +917,12 @@ function handleUserMessage(text){
   branchPanel.style.display = 'none';
 
   setTimeout(()=>{
+    const greeting = /^(прив(eт|етик)?|здравств(уй|уйте)|здорово|добрый день|добрый вечер|доброе утро|hello|hi|хай)[\s!.,?]*$/i.test(text.trim());
+    if(greeting){
+      addMsg('Привет! 👋 Рад видеть. Расскажи, чем ты обычно занимаешься в свободное время — игры, сериалы, спорт, что мастеришь руками? А я подскажу, что из этого можно написать в резюме.', 'bot');
+      chatStep = 2;
+      return;
+    }
     if(chatStep === 1){
       const found = matchItems(text, 3);
       if(found.length > 0){
@@ -996,6 +1032,10 @@ window.addEventListener('beforeprint', ()=>{
         <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там есть варианты: поделиться постом или просто подождать. Выбирай, что удобнее.</div>
       </div>`;
   }
+  bonusBubble.classList.remove('open');
+});
+window.addEventListener('afterprint', ()=>{
+  if(isUnlocked()) bonusBubble.classList.add('open');
 });
 ctaLock.addEventListener('click', ()=>{
   if(added.length < 2) return;
@@ -1103,10 +1143,43 @@ function renderPostVariants(){
 // "на доверии" (см. ветку else ниже), сайт не ломается без задеплоенной функции.
 const VERIFY_FUNCTION_URL = ''; // TODO: вставить URL после деплоя
 
+/* ---------- Бонус: воздушный пузырь с промтом для тренировки собеседования ---------- */
+const bonusBubble = document.getElementById('bonusBubble');
+const bonusPrompt = document.getElementById('bonusPrompt');
+const bonusCopyBtn = document.getElementById('bonusCopyBtn');
+const bonusClose = document.getElementById('bonusClose');
+
+function buildInterviewPrompt(){
+  const role = profile.role || (added[0] && (added[0].roles||[])[0]) || 'начинающий специалист';
+  const skillLines = [...new Set(added.flatMap(a=>{
+    const s = a.skills_reframed && a.skills_reframed.length ? a.skills_reframed.join('; ') : (a.skills||[]).join('; ');
+    return s.split(';').map(x=>x.trim()).filter(Boolean);
+  }))].slice(0, 4);
+  const skillsText = skillLines.length ? skillLines.join(', ') : 'склонность к обучению и внимательность к деталям';
+  return 'Ты — доброжелательный рекрутер. Проводишь собеседование с человеком без опыта работы, который претендует на роль: ' + role + '. Его сильные стороны из резюме: ' + skillsText + '. Задай мне 5 вопросов по одному — начинай с простых (почему хочешь работать, какой график удобен), потом спроси про мои сильные стороны. После каждого моего ответа давай короткую реакцию. В конце разбери мои ответы и дай 3 совета, как отвечать лучше.';
+}
+
+function showBonusBubble(){
+  const promptText = buildInterviewPrompt();
+  bonusPrompt.value = promptText;
+  bonusBubble.classList.add('open');
+}
+
+function hideBonusBubble(){
+  bonusBubble.classList.remove('open');
+}
+bonusClose.addEventListener('click', hideBonusBubble);
+bonusCopyBtn.addEventListener('click', async ()=>{
+  const ok = await copyText(bonusPrompt.value);
+  bonusCopyBtn.textContent = ok ? '✓ Скопировано' : 'Не вышло — выдели текст вручную';
+  if(ok) setTimeout(()=>{ bonusCopyBtn.textContent = '📋 Скопировать промт'; }, 2000);
+});
+
 function grantAccessAndPrint(){
   setUnlocked();
   updateResume();
   unlockOverlay.classList.remove('open');
+  showBonusBubble();
   showPrePrintInstruction();
 }
 
