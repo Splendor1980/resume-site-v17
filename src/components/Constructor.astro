@@ -442,7 +442,7 @@ function tokenize(text){
 }
 function itemSearchTokens(item){
   if(item._stemTokens) return item._stemTokens;
-  const raw = [item.category, ...(item.tags||[]), ...(item.skills||[]), ...(item.examples_now||[])].join(' ');
+  const raw = [item.category, ...(item.tags||[]), ...(item.skills||[]), ...(item.examples_now||[]), ...(item.keywords||[])].join(' ');
   item._stemTokens = tokenize(raw);
   return item._stemTokens;
 }
@@ -696,22 +696,29 @@ function renderRoleResult(){
 
 /* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
 function aboutTextFrom(list){
-  /* Новая версия (v4 базы): используем about_snippet, подготовленный по методологии
-     Ramit Sethi / Laszlo Bock / Ильяхов — вместо алгоритмической формулы "Умею: X.
-     Наработал(а) через: Y". Формула была нашей временной заплаткой; теперь у каждой
-     карточки есть осмысленно написанная фраза. Собираем 2-3 сниппета в связный абзац. */
-  const snippets = list.map(a => a.about_snippet).filter(Boolean).slice(0,3);
-  if(snippets.length === 0){
-    // fallback на случай если у записи почему-то нет about_snippet (не должно происходить в v4)
+  /* v5 базы: у каждой записи есть авторские варианты «О себе» (about_variants).
+     Берём вариант по индексу в списке (по модулю длины), чтобы соседние идеи
+     в одном резюме не звучали одинаково. Комментарий гипотетического «ИИ» не используется. */
+  const out = list.map((a, i) => {
+    const v = a.about_variants || [];
+    if(v.length) return v[i % v.length];
+    return a.about_snippet;
+  }).filter(Boolean).slice(0,3);
+  if(out.length === 0){
+    // fallback на случай если у записи почему-то нет авторских полей (не должно происходить в v5)
     return 'Умею: ' + [...new Set(list.flatMap(a=>a.skills||[]))].slice(0,3).join(', ') + '.';
   }
-  return snippets.join('\n');
+  return out.join('\n');
 }
-function expLineFrom(item){
+function expLineFrom(item, i){
+  /* v5: используем авторские варианты проектного опыта вместо буллета — по индексу,
+     чтобы соседние идеи не повторяли одни и те же обороты. */
+  const v = item.experience_variants || [];
+  if(v.length) return v[(i || 0) % v.length];
   return item.resume_bullet || `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
 }
 function expTextFrom(list){
-  return list.map(expLineFrom).join('\n');
+  return list.map((a, i) => expLineFrom(a, i)).join('\n');
 }
 function bindProfileInputs(container){
   container.querySelectorAll('[data-profile-field]').forEach(inp=>{
@@ -1003,7 +1010,7 @@ function renderPrintSheet(){
   if(profile.expTouched){
     if(profile.exp) expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div><div class="p-text">${esc(profile.exp)}</div></div>`;
   } else if(added.length){
-    const items = added.map(a=>`<div class="p-proj"><b>${esc(a.activity_title || a.category)}</b> — ${esc(a.resume_bullet || (a.skills||[]).join(', '))}</div>`).join('');
+    const items = added.map((a, i)=>`<div class="p-proj"><b>${esc(a.activity_title || a.category)}</b> — ${esc(expLineFrom(a, i))}</div>`).join('');
     expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div>${items}</div>`;
   }
 

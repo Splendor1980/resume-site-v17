@@ -21,10 +21,12 @@ const category = item.category || '';
 const tags = item.tags || [];
 const roles = item.roles || [];
 const examples = item.examples_now || [];
+const keywords = item.keywords || [];
 const reframed = item.skills_reframed && item.skills_reframed.length ? item.skills_reframed : item.skills || [];
+const experience = item.experience_variants && item.experience_variants.length ? item.experience_variants[0] : item.resume_bullet;
 const title = item.activity_title || category || item.id;
 const metaDescription = [
-  item.resume_bullet,
+  experience,
   item.employer_value,
   `Подойдёт: ${roles.slice(0, 3).join(', ')}`,
 ]
@@ -45,7 +47,7 @@ const structuredData = JSON.stringify({
   '@type': 'Article',
   headline: title,
   description: metaDescription || title,
-  keywords: tags.join(', '),
+  keywords: [...new Set([...tags, ...keywords])].join(', '),
   inLanguage: 'ru-RU',
   mainEntityOfPage: pageUrl,
   author: { '@type': 'Organization', name: 'Резюме без опыта' },
@@ -65,7 +67,7 @@ const structuredData = JSON.stringify({
     <section class="idea-hero">
       <span class="eyebrow">{category}</span>
       <h1>{title}</h1>
-      {item.resume_bullet && <p class="idea-lede">{item.resume_bullet}</p>}
+      {experience && <p class="idea-lede">{experience}</p>}
     </section>
 
     <div class="idea-body">

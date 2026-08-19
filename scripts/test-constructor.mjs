@@ -63,10 +63,34 @@ await page.waitForTimeout(900);
 const recs = await page.locator('#recBox .rec-card').count();
 console.log('chat recommendations:', recs);
 if (recs === 0) fail('no recommendations in chat');
-await page.locator('#recBox .add-btn').first().click();
+// v5: рекомендации чата могли ранжироваться иначе из-за keywords — проверяем именно,
+// что клик по НЕ добавленной рекомендации добавляет идею (counter растёт на 1).
+const addBtns = page.locator('#recBox .add-btn');
+const baseCounter = parseInt((await page.locator('#counter').textContent()).replace(/\D/g, ''), 10);
+let clicked = false;
+for (let i = 0; i < await addBtns.count(); i++) {
+  const cls = await addBtns.nth(i).getAttribute('class');
+  if (!cls.includes('added')) { await addBtns.nth(i).click(); clicked = true; break; }
+}
+if (clicked) await page.waitForTimeout(300);
 const afterChat = parseInt((await page.locator('#counter').textContent()).replace(/\D/g, ''), 10);
 console.log('counter after add from chat:', afterChat);
-if (afterChat < 2) fail('add from chat failed (counter=' + afterChat + ')');
+if (!clicked) fail('chat had no unadded recommendations at all');
+if (afterChat !== baseCounter + 1) fail('add from chat failed (base=' + baseCounter + ', after=' + afterChat + ')');
+
+// v5: «О себе» и «Проектный опыт» взяты из авторских вариантов (не resume_bullet/skills)
+await page.goto(BASE + '/konstruktor/', { waitUntil: 'load' });
+await page.waitForSelector('.card .add-btn');
+await page.locator('.card .add-btn').nth(0).click();
+await page.locator('.card .add-btn').nth(1).click();
+await page.waitForSelector('.sheet textarea[data-profile-textarea="about"]');
+const aboutVal = await page.locator('.sheet textarea[data-profile-textarea="about"]').inputValue();
+const expVal = await page.locator('.sheet textarea[data-profile-textarea="exp"]').inputValue();
+if (!aboutVal || !expVal) fail('v5 author fields empty (about/exp)');
+if (aboutVal.includes('—') === false && expVal.includes('—') === false) fail('author variants look like plain lists');
+console.log('sample about:', aboutVal.split('\n')[0].slice(0, 90));
+console.log('sample exp  :', expVal.split('\n')[0].slice(0, 90));
+console.log('v5 author variants in resume: OK');
 console.log('chat mode: OK');
 
 // шестерёнка-дровер
