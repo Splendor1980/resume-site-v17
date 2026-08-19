@@ -154,6 +154,9 @@ const guideText = await page.locator('body').textContent();
 for (const author of ['Карнеги', 'Гоулстона', 'Гоулман', 'Синек', 'Ивановой', 'Чалдини', 'Восс', 'Батырев', 'Якуба']) {
   if (!guideText.includes(author)) fail('guide missing author: ' + author);
 }
+for (const cred of ['Dale Carnegie Training', 'ФБР', 'UCLA', 'New York Times', 'RAND', 'Johnson & Johnson', 'HPS', 'Tom Hunt']) {
+  if (!guideText.includes(cred)) fail('guide missing credential: ' + cred);
+}
 const navHasGuide = (await page.locator('.site-nav-links a').allTextContents()).some((t) => t.includes('Собеседование'));
 if (!navHasGuide) fail('guide link missing in header nav');
 console.log('sobesedovanie guide: OK');
