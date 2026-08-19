@@ -917,7 +917,7 @@ function handleUserMessage(text){
   branchPanel.style.display = 'none';
 
   setTimeout(()=>{
-    const greeting = /^(прив(eт|етик)?|здравств(уй|уйте)|здорово|добрый день|добрый вечер|доброе утро|hello|hi|хай)[\s!.,?]*$/i.test(text.trim());
+    const greeting = /^(?:прив(?:ет|етик|етствую)[\s\p{P}\p{Emoji}]*|здравств(?:уй|уйте)[\s\p{P}\p{Emoji}]*|здорово[\s\p{P}\p{Emoji}]*|добрый день[\s\p{P}\p{Emoji}]*|добрый вечер[\s\p{P}\p{Emoji}]*|доброе утро[\s\p{P}\p{Emoji}]*|hello[\s\p{P}\p{Emoji}]*|hi[\s\p{P}\p{Emoji}]*|хай[\s\p{P}\p{Emoji}]*|ку[\s\p{P}\p{Emoji}]*)(?:как дела\??[\s\p{P}\p{Emoji}]*|как ты\??[\s\p{P}\p{Emoji}]*|как у тебя дела\??[\s\p{P}\p{Emoji}]*|как жизнь\??[\s\p{P}\p{Emoji}]*|рад(?:а)? видеть[\s\p{P}\p{Emoji}]*)?[\s\p{P}\p{Emoji}]*$/iu.test(text.trim().slice(0, 60));
     if(greeting){
       addMsg('Привет! 👋 Рад видеть. Расскажи, чем ты обычно занимаешься в свободное время — игры, сериалы, спорт, что мастеришь руками? А я подскажу, что из этого можно написать в резюме.', 'bot');
       chatStep = 2;

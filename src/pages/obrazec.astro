@@ -1,0 +1,241 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const site = (Astro.site?.href ?? '').replace(/\/$/, '');
+
+const title =
+  'Образец резюме без опыта работы: 3 готовых примера для школьника, студента и выпускника';
+const description =
+  'Готовые образцы резюме без опыта работы 2026: заполненные примеры для школьника, студента и выпускника. Навыки собраны из реальных хобби — бери и повторяй.';
+
+const samples = [
+  {
+    persona: 'Школьник (16–17 лет)',
+    target: 'Помощник в магазине, администратор в игровом клубе',
+    ideas: [
+      { href: '/idei/strategy_games/', label: 'Стратегии и тактические игры' },
+      { href: '/idei/team_sport/', label: 'Командный спорт' },
+    ],
+    education: 'Среднее (11 класс, выпускаюсь в этом году)',
+    about:
+      'Занимаюсь стратегическими играми и командным спортом — это научило планировать ресурсы, принимать решения под давлением и работать на общий результат.',
+    experience: [
+      'Регулярно управляю сложными системами с ограниченными ресурсами: просчитываю последствия решений на несколько шагов вперёд и действую в условиях цейтнота.',
+      'Тренируюсь в команде, соблюдаю режим, умею работать на общий результат, а не только на свой, и общаться под нагрузкой.',
+    ],
+    skills: [
+      'Планирование ресурсов при дефиците',
+      'Принятие решений в условиях ограниченного времени',
+      'Работа в команде и коммуникация',
+      'Соблюдение режима и дисциплина',
+    ],
+  },
+  {
+    persona: 'Студент (1–2 курс)',
+    target: 'Помощник видеомонтажёра, контент-мейкер',
+    ideas: [
+      { href: '/idei/video_editing/', label: 'Видеомонтаж' },
+      { href: '/idei/languages_learning/', label: 'Изучение языков' },
+      { href: '/idei/photo_hobby/', label: 'Фотография' },
+    ],
+    education: 'Среднее профессиональное образование (неоконченное)',
+    about:
+      'Самостоятельно осваиваю монтаж видео и иностранный язык: умею доводить дело от сырого материала до готового результата и работать с реальными источниками.',
+    experience: [
+      'Монтирую видео: собираю материал в понятную историю, выстраиваю ритм, работаю со звуком, довожу до готового ролика.',
+      'Системно изучаю иностранный язык: выстроил практику, работаю с первоисточниками, не бросаю на плато.',
+      'Снимаю, отбираю и подаю визуальный материал: разбираюсь в композиции, свете и том, что работает для зрителя.',
+    ],
+    skills: [
+      'Видеомонтаж и работа со звуком',
+      'Композиция и работа со светом',
+      'Самостоятельное обучение и системность',
+      'Работа с источниками информации',
+    ],
+  },
+  {
+    persona: 'Выпускник вуза без опыта работы',
+    target: 'Помощник организатора мероприятий, работа в НКО',
+    ideas: [
+      { href: '/idei/volunteering/', label: 'Волонтёрство' },
+      { href: '/idei/drone_flying/', label: 'Дроны и аэросъёмка' },
+    ],
+    education: 'Высшее (неоконченное или поступление на магистратуру)',
+    about:
+      'Помогаю на мероприятиях без денежной мотивации — это воспитало ответственность и командную дисциплину. Дополнительно научился пилотированию дрона и аэросъёмке.',
+    experience: [
+      'Регулярно работаю на результат на пользу другим: помогаю на мероприятиях, в команде волонтёров, беру на себя ответственность без оплаты.',
+      'Пилотирую дрон и выполняю аэросъёмку: пространственное мышление, управление техникой, базовый видеомонтаж материала.',
+    ],
+    skills: [
+      'Ответственность без внешнего контроля',
+      'Работа в команде волонтёров',
+      'Управление техникой и пространственное мышление',
+      'Аэросъёмка и базовый видеомонтаж',
+    ],
+  },
+];
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  inLanguage: 'ru-RU',
+  mainEntityOfPage: site + '/obrazec/',
+  author: { '@type': 'Organization', name: 'Резюме без опыта' },
+  publisher: { '@type': 'Organization', name: 'Резюме без опыта' },
+});
+---
+
+<BaseLayout title={title} description={description} ogType="article" structuredData={structuredData}>
+  <Header />
+  <main>
+    <section class="hero">
+      <span class="eyebrow">образец резюме без опыта работы · 2026</span>
+      <h1>Образец резюме без опыта работы</h1>
+      <p class="lead">
+        Не «пустой шаблон», который надо заполнять с нуля, а три <b>полностью готовых</b> резюме —
+        для школьника, студента и выпускника. Собраны из хобби и интересов, именно так выглядит
+        результат нашего конструктора. У каждого — «О себе», навыки и опыт, описанные через то,
+        чем человек реально занимается.
+      </p>
+      <div class="hero-actions">
+        <a class="cta-btn" href="/konstruktor/">Собрать такое же резюме за пару минут →</a>
+        <a class="cta-btn dark" href="/idei/">Смотреть все 103 идеи</a>
+      </div>
+    </section>
+
+    <div class="wrap">
+      {samples.map((s) => (
+        <section class="section" style="margin-bottom:34px;">
+          <div class="section-head">
+            <h2>{s.persona}</h2>
+          </div>
+          <div class="sample-resume">
+            <div class="sample-head">
+              <div class="sample-name">Имя Фамилия (подставь своё)</div>
+              <div class="sample-target">Целевая роль: <b>{s.target}</b></div>
+            </div>
+
+            <div class="sample-block">
+              <div class="sample-block-title">О себе</div>
+              <p>{s.about}</p>
+            </div>
+
+            <div class="sample-block">
+              <div class="sample-block-title">Ключевые навыки</div>
+              <div class="example-chips">
+                {s.skills.map((sk) => <span class="example-chip">{sk}</span>)}
+              </div>
+            </div>
+
+            <div class="sample-block">
+              <div class="sample-block-title">Чем занимаюсь (вместо опыта работы)</div>
+              <ul style="margin:0; padding-left:20px; font-size:14px; line-height:1.7;">
+                {s.experience.map((e) => <li>{e}</li>)}
+              </ul>
+            </div>
+
+            <div class="sample-block">
+              <div class="sample-block-title">Образование</div>
+              <p style="margin:0; font-size:14px;">{s.education}</p>
+            </div>
+
+            <div class="sample-block" style="margin-bottom:0;">
+              <div class="sample-block-title">Какие идеи за этим стоят</div>
+              <div class="example-chips" style="display:flex; flex-wrap:wrap; gap:6px;">
+                {s.ideas.map((idea) => (
+                  <a class="idea-link" href={idea.href}>{idea.label} →</a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      ))}
+
+      <section class="section">
+        <div class="idea-panel" style="padding:18px 20px;">
+          <h2 style="font-size:17px; margin:0 0 10px;">Как это повторить</h2>
+          <p style="margin:0; font-size:14px; line-height:1.65;">
+            Образцы выше — не выдумка: каждый навык и каждая формулировка взяты из базы из 103
+            связок «хобби → навыки → профессия». Открой конструктор, выбери 2–3 своих занятия — и
+            получишь резюме, собранное так же, с подходящими именно тебе ролями. Без регистрации,
+            данные остаются в твоём браузере.
+          </p>
+          <p style="margin:14px 0 0;">
+            <a class="cta-btn" href="/konstruktor/">Открыть конструктор →</a>
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style is:global>
+  .sample-resume {
+    background: var(--paper1);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 8px 18px -10px rgba(30, 43, 34, 0.12);
+  }
+  .sample-head {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .sample-name {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .sample-target {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .sample-target b {
+    color: var(--coral-deep);
+  }
+  .sample-block {
+    margin-bottom: 16px;
+  }
+  .sample-block-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .sample-block p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .sample-resume .example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sample-resume .idea-link {
+    display: inline-flex;
+    align-items: center;
+    background: var(--paper2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--coral-deep);
+    text-decoration: none;
+    transition: background .15s ease;
+  }
+  .sample-resume .idea-link:hover {
+    background: var(--paper1);
+  }
+</style>

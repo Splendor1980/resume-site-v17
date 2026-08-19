@@ -3,11 +3,26 @@ import Constructor from '../components/Constructor.astro';
 import Metrika from '../components/Metrika.astro';
 
 const site = (Astro.site?.href ?? '').replace(/\/$/, '');
-const title = 'Конструктор резюме без опыта работы — собери резюме за пару минут';
+const title = 'Конструктор резюме бесплатно — 103 готовые идеи, собери резюме за пару минут';
 const description =
-  'Интерактивный конструктор резюме для школьников и студентов: выбери из 103 готовых связок «хобби → навыки → профессия», и резюме соберётся само — останется скачать PDF. Без ИИ и без регистрации.';
+  'Конструктор резюме без опыта работы: выбери из 103 готовых связок «хобби → навыки → профессия» — и резюме соберётся само, останется скачать PDF. Бесплатно, без регистрации, данные не покидают браузер.';
 const fontsHref =
   'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap';
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Конструктор резюме без опыта',
+  url: site + '/konstruktor/',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Any',
+  inLanguage: 'ru-RU',
+  offer: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'RUB',
+  },
+});
 ---
 
 <!doctype html>
@@ -23,6 +38,7 @@ const fontsHref =
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href={fontsHref} rel="stylesheet" />
+    <script is:inline type="application/ld+json" set:html={structuredData} />
     <!-- Конструктор — «остров» интерактивности на Astro: вся остальная часть сайта —
          статический HTML с готовым текстовым контентом, который индексируется поисковиками. -->
     <Metrika />

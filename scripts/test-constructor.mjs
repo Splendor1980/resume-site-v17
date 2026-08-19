@@ -111,6 +111,14 @@ if ((await page.locator('.mini-card').count()) < 4) fail('landing featured missi
 if (!(await page.locator('body').textContent()).includes('Частые вопросы')) fail('landing FAQ missing');
 console.log('landing: OK');
 
+// страница «Образец резюме»
+await page.goto(BASE + '/obrazec/', { waitUntil: 'load' });
+if (!(await page.locator('body').textContent()).includes('3') && (await page.locator('.sample-resume').count()) < 3)
+  fail('obrazec samples missing');
+if ((await page.locator('.sample-resume').count()) !== 3) fail('expected 3 samples, got ' + await page.locator('.sample-resume').count());
+if ((await page.locator('.sample-resume a.idea-link').count()) !== 7) fail('idea-links on obrazec missing');
+console.log('obrazec: OK');
+
 // полный список идей
 await page.goto(BASE + '/idei/', { waitUntil: 'load' });
 const hrefs = await page.locator('.list-row').evaluateAll((els) =>
