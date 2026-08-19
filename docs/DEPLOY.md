@@ -92,7 +92,8 @@ npm run test:e2e   # headless-проверка (Playwright): 103 карточк�
 - [x] `www` → без-www: бакет-редирект `www.resumegenerator.ru` (режим «Переадресация»
       на `https://resumegenerator.ru`), CNAME `www` → `www.resumegenerator.ru.website.yandexcloud.net`.
       Проверено: `https://www.resumegenerator.ru/` → 301 → без-www, TLS 1.3, без предупреждений.
-- [ ] Ротация статического ключа S3 в `deploy/.env` (новый ключ — в консоли Yandex Cloud)
+- [x] Ротация статического ключа S3 в `deploy/.env` — сделано 19.08.2026: новый ключ
+      (аккаунт `astro-uploader2`), сайт перевыгружен, старый ключ отозван в консоли.
 - [ ] Проверить с 2-3 устройств (десктоп/мобайл) доступ к `/`, `/konstruktor/`, нескольким `/idei/`
 - [ ] Проверить печать PDF: >2 идей → кнопка «Скачать PDF» → модалка → «Сохранить как PDF»
 
