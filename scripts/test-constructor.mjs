@@ -143,6 +143,25 @@ if ((await page.locator('.sample-resume').count()) !== 3) fail('expected 3 sampl
 if ((await page.locator('.sample-resume a.idea-link').count()) !== 7) fail('idea-links on obrazec missing');
 console.log('obrazec: OK');
 
+// страница «Собеседование без опыта» (гайд-инструкция)
+await page.goto(BASE + '/sobesedovanie/', { waitUntil: 'load' });
+const guideH1 = (await page.locator('h1').textContent()).trim();
+if (!guideH1) fail('guide page empty');
+if (!(await page.locator('#printPdfBtn').count())) fail('guide PDF button missing');
+if ((await page.locator('.idea-panel').count()) < 4) fail('guide panels missing');
+if (!(await page.locator('body').textContent()).includes('протестируй')) fail('guide test-yourself call missing');
+const navHasGuide = (await page.locator('.site-nav-links a').allTextContents()).some((t) => t.includes('Собеседование'));
+if (!navHasGuide) fail('guide link missing in header nav');
+console.log('sobesedovanie guide: OK');
+
+// бонус-пузырь на конструкторе ссылается на гайд
+await page.goto(BASE + '/konstruktor/', { waitUntil: 'load' });
+await page.waitForSelector('.card');
+await page.click('.card .add-btn'); // не дожидаемся разблокировки — проверяем наличие ссылки в разметке пузыря
+const bonusGuideHref = await page.locator('#bonusBubble a[href="/sobesedovanie/"]').getAttribute('href');
+if (!bonusGuideHref) fail('bonus bubble guide link missing');
+console.log('bonus bubble -> guide link: OK');
+
 // полный список идей
 await page.goto(BASE + '/idei/', { waitUntil: 'load' });
 const hrefs = await page.locator('.list-row').evaluateAll((els) =>
