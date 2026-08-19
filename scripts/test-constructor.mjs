@@ -148,8 +148,12 @@ await page.goto(BASE + '/sobesedovanie/', { waitUntil: 'load' });
 const guideH1 = (await page.locator('h1').textContent()).trim();
 if (!guideH1) fail('guide page empty');
 if (!(await page.locator('#printPdfBtn').count())) fail('guide PDF button missing');
-if ((await page.locator('.idea-panel').count()) < 4) fail('guide panels missing');
+if ((await page.locator('.idea-panel').count()) < 8) fail('guide panels missing (need >=8)');
 if (!(await page.locator('body').textContent()).includes('протестируй')) fail('guide test-yourself call missing');
+const guideText = await page.locator('body').textContent();
+for (const author of ['Карнеги', 'Гоулстона', 'Гоулман', 'Синек', 'Ивановой', 'Чалдини', 'Восс', 'Батырев', 'Якуба']) {
+  if (!guideText.includes(author)) fail('guide missing author: ' + author);
+}
 const navHasGuide = (await page.locator('.site-nav-links a').allTextContents()).some((t) => t.includes('Собеседование'));
 if (!navHasGuide) fail('guide link missing in header nav');
 console.log('sobesedovanie guide: OK');
