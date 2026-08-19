@@ -91,8 +91,10 @@
   .unlock-modal h3{font-family:'Baloo 2',sans-serif; font-size:21px; margin:14px 0 8px;}
   .unlock-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 18px;}
   .unlock-tabs{display:flex; gap:6px; background:var(--paper1); border-radius:10px; padding:4px; margin-bottom:18px;}
-  .unlock-tab{flex:1; font-family:'Manrope',sans-serif; font-weight:700; font-size:12.5px; padding:9px 10px; border-radius:8px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer;}
+  .unlock-tab{flex:1; font-family:'Manrope',sans-serif; font-weight:700; font-size:12.5px; padding:9px 10px; border-radius:8px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer; position:relative;}
   .unlock-tab.active{background:var(--ink); color:#fff;}
+  .unlock-tab[data-tooltip]:hover::after{content:attr(data-tooltip); position:absolute; left:50%; top:calc(100% + 8px); transform:translateX(-50%); background:var(--ink); color:#fff; font-family:'Manrope',sans-serif; font-weight:400; font-size:11.5px; line-height:1.4; padding:8px 12px; border-radius:8px; width:220px; z-index:40; box-shadow:0 6px 18px -8px rgba(30,43,34,0.45); text-align:center; pointer-events:none;}
+  .unlock-tab[data-tooltip]:hover::before{content:""; position:absolute; left:50%; top:calc(100% + 2px); transform:translateX(-50%); border:6px solid transparent; border-bottom-color:var(--ink); z-index:41; pointer-events:none;}
   .unlock-hint{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0 0 10px;}
   .post-variants{display:flex; flex-direction:column; gap:8px;}
   .post-variant{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:11px 13px;}
@@ -148,15 +150,16 @@
   .card{background:var(--paper1); border-radius:6px; padding:18px 16px 16px; box-shadow:0 8px 18px -10px rgba(30,43,34,0.3); border:1px solid var(--line); display:flex; flex-direction:column;}
   .card:nth-child(3n+2){background:var(--paper2);}
   .card:nth-child(3n){background:var(--paper3);}
-  .card-top{border-radius:5px 5px 0 0; margin:-18px -16px 12px; padding:12px 16px; background:linear-gradient(135deg, rgba(255,255,255,0.75), rgba(255,255,255,0.35)); border-bottom:1px dashed var(--line);}
-  .card-eyebrow{font-family:'Space Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink); font-weight:700; margin-bottom:5px; display:block;}
+  .card-top{border-radius:5px 5px 0 0; margin:-18px -16px 12px; padding:12px 14px 11px; background:linear-gradient(135deg, rgba(212,100,70,0.12), rgba(212,100,70,0.05)); border-bottom:1px solid rgba(212,100,70,0.22);}
+  .card-eyebrow{font-family:'Space Mono',monospace; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--coral-deep); font-weight:700; margin-bottom:6px; display:block;}
   .card-exam{display:flex; flex-wrap:wrap; gap:6px;}
-  .card-exam .ex{font-size:11.5px; font-weight:600; background:var(--paper3); border:1px solid var(--line); border-radius:999px; padding:3px 9px; color:var(--ink-soft);}
-  .card h3{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 8px; line-height:1.25;}
+  .card-exam .ex{font-size:12px; font-weight:700; background:#fff; border:1px solid rgba(212,100,70,0.35); border-radius:999px; padding:3px 10px; color:var(--ink);}
+  .card h3{font-family:'Baloo 2',sans-serif; font-size:17px; margin:0 0 8px; line-height:1.25;}
   .card h3 a{color:inherit; text-decoration:none;}
   .card h3 a:hover{color:var(--coral-deep);}
-  .card-bullet{font-size:12.5px; line-height:1.5; color:var(--ink); margin:0 0 10px;}
-  .employer-value{font-size:11.5px; line-height:1.45; background:rgba(255,255,255,0.55); border-radius:6px; padding:8px 10px; margin-bottom:10px; color:var(--ink);}
+  .card-comment{font-size:12.5px; line-height:1.5; color:var(--ink-soft); margin:0 0 12px;}
+  .card-roles{font-size:12.5px; line-height:1.45; margin:0 0 12px; color:var(--ink);}
+  .card-roles b{font-weight:700; color:var(--coral-deep);}
   .tag-row{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
   .skill-tag{font-family:'Space Mono',monospace; font-size:10.5px; padding:3px 8px; border-radius:5px; background:rgba(30,43,34,0.07); color:var(--ink-soft);}
   .roles{font-size:12.5px; margin:0 0 12px; list-style:none; padding:0;}
@@ -308,7 +311,7 @@
       <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее — оба варианта работают одинаково честно.</p>
 
       <div class="unlock-tabs">
-        <button class="unlock-tab active" data-tab="share">Поделиться и скачать сразу</button>
+        <button class="unlock-tab active" data-tab="share" data-tooltip="После поста ты получишь не только PDF — ещё один небольшой лайфхак, который поможет на собеседовании">Поделиться и скачать сразу</button>
         <button class="unlock-tab" data-tab="wait">Просто подождать 10 минут</button>
       </div>
 
@@ -575,17 +578,14 @@ function renderBoard(){
   if(filtered.length===0){ boardEl.innerHTML = `<div class="empty-state">Ничего не нашлось по этим тегам.</div>`; return; }
   boardEl.innerHTML = filtered.map(item=>{
     const isAdded = added.find(a=>a.id===item.id);
-    const tags = item.skills_reframed && item.skills_reframed.length ? item.skills_reframed : (item.skills||[]);
     return `<div class="card">
       <div class="card-top">
         <span class="card-eyebrow">${item.category}</span>
         ${(item.examples_now || []).length ? `<div class="card-exam">${item.examples_now.map(e=>`<span class="ex">${e}</span>`).join('')}</div>` : ''}
       </div>
       <h3><a href="/idei/${item.id}/">${item.activity_title || item.category}</a></h3>
-      ${item.resume_bullet ? `<p class="card-bullet">${item.resume_bullet}</p>` : ''}
-      <div class="tag-row">${tags.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
-      ${item.employer_value ? `<div class="employer-value">💼 ${item.employer_value}</div>` : ''}
-      <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
+      ${item.comment ? `<p class="card-comment">${item.comment}</p>` : ''}
+      ${(item.roles||[]).length ? `<p class="card-roles"><b>Подойдёт для:</b> ${item.roles.slice(0,3).join(' · ')}</p>` : ''}
       ${researchBlockHtml(item)}
       <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено (нажми, чтобы убрать)':'+ Добавить в резюме'}</button>
     </div>`;
