@@ -15,3 +15,6 @@ Thumbs.db
 
 # временные файлы тестов (если запускались локально с копией)
 constructor-test.mjs
+
+# скриншоты мобильной проверки (генерируются scripts/mobile-check.mjs)
+mobile-check/
