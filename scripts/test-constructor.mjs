@@ -132,6 +132,24 @@ if (ab0.trim().startsWith('Много играю') || ex0.trim().startsWith('Н�
 console.log('sample about:', ab0.slice(0, 90));
 console.log('sample exp  :', ex0.slice(0, 90));
 console.log('v5 author variants in resume: OK');
+
+// шаблоны превью: компакт при 1–2 идеях, плотный с 3+; тумблер позволяет пин
+const sheetClass = async () => (await page.locator('#sheetContainer').getAttribute('class'));
+const countBtn = page.locator('.card .add-btn');
+if (!(await sheetClass()).includes('compact')) fail('expected compact template at 2 ideas, got ' + await sheetClass());
+await countBtn.nth(2).click();          // 3 идеи
+if (!(await sheetClass()).includes('dense')) fail('expected dense template at 3 ideas, got ' + await sheetClass());
+await countBtn.nth(1).click();          // обратно на 2 идеи
+if (!(await sheetClass()).includes('compact')) fail('expected compact at 2 ideas after removing one');
+await page.locator('#tmplBar .tmpl-btn[data-tmpl="dense"]').click();
+if (!(await sheetClass()).includes('dense')) fail('manual pin to dense failed');
+await page.locator('#tmplBar .tmpl-btn[data-tmpl="dense"]').click();
+if (!(await sheetClass()).includes('compact')) fail('unpin (second click on dense) should return to auto compact');
+await page.locator('#tmplBar .tmpl-btn[data-tmpl="compact"]').click();
+if (!(await sheetClass()).includes('compact')) fail('manual pin to compact with 2 ideas failed');
+await page.locator('#tmplBar .tmpl-btn[data-tmpl="compact"]').click();
+if (!(await sheetClass()).includes('compact')) fail('unpin back to auto at 2 ideas');
+console.log('templates + toggle: OK');
 console.log('chat mode: OK');
 
 // шестерёнка-дровер

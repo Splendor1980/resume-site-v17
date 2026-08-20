@@ -32,6 +32,12 @@
   .resume-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:26px 20px 16px;}
   .resume-footer{flex-shrink:0; padding:14px 20px 22px; border-top:1px solid rgba(30,43,34,0.18); background:rgba(216,225,203,0.6); backdrop-filter:blur(2px);}
   .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
+  .tmpl-bar{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:0 20px 12px;}
+  .tmpl-label{font-family:'Space Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-right:2px;}
+  .tmpl-btn{font-family:'Space Mono',monospace; font-size:11px; background:transparent; border:1px solid var(--line); color:var(--ink); border-radius:999px; padding:6px 13px; cursor:pointer; transition:background .15s,color .15s,border-color .15s;}
+  .tmpl-btn:hover{border-color:var(--coral-deep); color:var(--coral-deep);}
+  .tmpl-btn.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .tmpl-btn.pinned::after{content:" •"; color:var(--coral-deep);}
   .sheet{background:var(--white); border-radius:6px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:560px; overflow:hidden;}
   .sheet .placeholder{color:#B7BFB2; font-style:italic;}
   .label-sm{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;}
@@ -287,6 +293,7 @@
     .unlock-close{font-size:22px; padding:6px 10px;}
     .bonus-bubble{left:14px; right:14px; max-width:none;}
     .bonus-copy-btn, .bonus-link-btn{min-height:44px; display:inline-flex; align-items:center; justify-content:center; font-size:12px;}
+    .tmpl-btn{min-height:44px; display:inline-flex; align-items:center; justify-content:center;}
     .card{padding:16px 14px 14px;}
     .card h3{font-size:18px;}
     .card h3 a{display:inline-flex; align-items:center; min-height:44px;}
@@ -332,6 +339,13 @@
   <aside class="resume-pane">
     <div class="resume-scroll">
       <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
+    </div>
+    <div class="tmpl-bar" id="tmplBar">
+      <span class="tmpl-label">Шаблон</span>
+      <button class="tmpl-btn" data-tmpl="compact" type="button" title="Боковая колонка: ставится автоматически при 1–2 идеях">Компакт</button>
+      <button class="tmpl-btn" data-tmpl="dense" type="button" title="Плотный одноколоночный: ставится автоматически с 3+ идей">Плотный</button>
+    </div>
+    <div class="resume-scroll">
       <div class="sheet compact" id="sheetContainer"></div>
     </div>
     <div class="resume-footer">
@@ -752,6 +766,7 @@ function aboutTextFrom(list){
   }).filter(Boolean).slice(0,3);
   if(out.length === 0){
     // fallback на случай если у записи почему-то нет авторских полей (не должно происходить в v5)
+    if(list.length === 0) return '';
     return 'Умею: ' + [...new Set(list.flatMap(a=>a.skills||[]))].slice(0,3).join(', ') + '.';
   }
   return out.join('\n');
@@ -834,7 +849,7 @@ function renderCompactSheet(){
     </div>`;
 }
 function renderDenseSheet(){
-  const autoRole = (added[0].roles||[])[0];
+  const autoRole = added.length ? (added[0].roles||[])[0] : '';
   return `
     <div>
       <input class="field-input name-input" data-profile-field="name" placeholder="Имя Фамилия" value="${esc(profile.name)}">
@@ -857,13 +872,35 @@ function renderDenseSheet(){
 }
 function updateResume(){
   counterEl.textContent = `Добавлено идей: ${added.length}`;
-  const isCompact = added.length < 2;
+  /* Два шаблона превью: «компакт» (боковая колонка) и «плотный» (одна колонка).
+     Авто-порог: компакт при 1–2 идеях, плотный — с 3+ (2 идеи = минимум для печати,
+     значит компакт реально виден до самого порога сохранения). Пин (tmplPin) из тумблера
+     над превью закрепляет шаблон любым — клик по активной кнопке возвращает авто-режим.
+     На печать/PDF это не влияет: там отдельный слой renderPrintSheet(). */
+  const autoCompact = added.length < 3;
+  const isCompact = tmplPin ? tmplPin === 'compact' : autoCompact;
   sheetContainer.className = 'sheet ' + (isCompact ? 'compact' : 'dense');
   sheetContainer.innerHTML = isCompact ? renderCompactSheet() : renderDenseSheet();
   bindProfileInputs(sheetContainer);
+  tmplBar.querySelectorAll('[data-tmpl]').forEach(b=>{
+    const active = tmplPin ? b.dataset.tmpl === tmplPin : b.dataset.tmpl === (autoCompact ? 'compact' : 'dense');
+    b.classList.toggle('active', !!active);
+    b.classList.toggle('pinned', tmplPin === b.dataset.tmpl);
+    b.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
   ctaLock.classList.toggle('ready', added.length>=2);
   renderTraitSynthesis();
 }
+
+/* ---------- Тумблер шаблона превью: авто по числу идей + ручной пин ---------- */
+const tmplBar = document.getElementById('tmplBar');
+let tmplPin = null;
+tmplBar.querySelectorAll('[data-tmpl]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tmplPin = (tmplPin === btn.dataset.tmpl) ? null : btn.dataset.tmpl;
+    updateResume();
+  });
+});
 
 /* ---------- БЛОК-СИНТЕЗ: тёплая поддержка на языке черт, не психологический разбор ---------- */
 const TRAIT_RULES = [
