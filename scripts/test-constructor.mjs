@@ -165,7 +165,14 @@ await page.click('#confirmShareBtn');
 await page.waitForSelector('#unlockOverlay:not(.open)', { state: 'attached', timeout: 8000 });
 const unlocked = await page.evaluate(() => !!localStorage.getItem('resumeSiteUnlockedAt'));
 if (!unlocked) fail('unlock did not persist to localStorage');
+// регресс: повторное открытие бонус-пузыря после печати должно заполнять текст промта
+await page.evaluate(() => { window.dispatchEvent(new Event('beforeprint')); window.dispatchEvent(new Event('afterprint')); });
+await page.waitForSelector('#bonusBubble.open');
+const promptAfterPrint = await page.locator('#bonusPrompt').inputValue();
+if (!promptAfterPrint.trim()) fail('bonus prompt empty after beforeprint/afterprint reopen');
+if (!promptAfterPrint.includes('рекрутер')) fail('bonus prompt lost its content after reopen');
 console.log('unlock modal + copy buttons: OK');
+console.log('bonus bubble after print: OK');
 
 // SEO-ссылка карточки -> статическая страница
 const href = await page.locator('.card h3 a').first().getAttribute('href');

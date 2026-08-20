@@ -1090,7 +1090,7 @@ window.addEventListener('beforeprint', ()=>{
   bonusBubble.classList.remove('open');
 });
 window.addEventListener('afterprint', ()=>{
-  if(isUnlocked()) bonusBubble.classList.add('open');
+  if(isUnlocked()) showBonusBubble();
 });
 ctaLock.addEventListener('click', ()=>{
   if(added.length < 2) return;
