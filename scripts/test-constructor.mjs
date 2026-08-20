@@ -165,6 +165,8 @@ await page.goto(BASE + '/konstruktor/', { waitUntil: 'load' });
 await page.waitForSelector('.card');
 if ((await page.locator('.card').count()) < 103) fail('cards missing after reload');
 await page.locator('.card .add-btn').nth(0).click();
+const ctaReadyAtOne = await page.locator('#ctaLock').getAttribute('class');
+if (!ctaReadyAtOne.includes('ready')) fail('ctaLock should be ready after 1 idea (print/save unlocked by one card)');
 await page.locator('.card .add-btn').nth(1).click();
 const ctaBefore = await page.locator('#ctaLock').getAttribute('class');
 if (!ctaBefore.includes('ready')) fail('ctaLock not ready before unlock');

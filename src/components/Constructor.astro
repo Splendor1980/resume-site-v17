@@ -351,7 +351,7 @@
     <div class="resume-footer">
       <div class="counter" id="counter">Добавлено идей: 0</div>
       <button class="cta-lock" id="ctaLock">📄 Скачать PDF
-        <small>откроется после 2+ идей</small>
+        <small>откроется после 1+ идеи</small>
       </button>
       <div class="pdf-hint">Файл сохраняется через системное окно печати браузера — подробности покажем перед открытием.</div>
     </div>
@@ -873,7 +873,7 @@ function renderDenseSheet(){
 function updateResume(){
   counterEl.textContent = `Добавлено идей: ${added.length}`;
   /* Два шаблона превью: «компакт» (боковая колонка) и «плотный» (одна колонка).
-     Авто-порог: компакт при 1–2 идеях, плотный — с 3+ (2 идеи = минимум для печати,
+     Авто-порог: компакт при 1–2 идеях, плотный — с 3+ (1 идея уже даёт печать,
      значит компакт реально виден до самого порога сохранения). Пин (tmplPin) из тумблера
      над превью закрепляет шаблон любым — клик по активной кнопке возвращает авто-режим.
      На печать/PDF это не влияет: там отдельный слой renderPrintSheet(). */
@@ -888,7 +888,7 @@ function updateResume(){
     b.classList.toggle('pinned', tmplPin === b.dataset.tmpl);
     b.setAttribute('aria-pressed', active ? 'true' : 'false');
   });
-  ctaLock.classList.toggle('ready', added.length>=2);
+  ctaLock.classList.toggle('ready', added.length>=1);
   renderTraitSynthesis();
 }
 
@@ -1121,7 +1121,7 @@ window.addEventListener('beforeprint', ()=>{
     document.getElementById('printSheet').innerHTML = `
       <div style="padding:50mm 25mm; text-align:center; font-family:'Manrope',sans-serif;">
         <div style="font-size:16pt; font-weight:700; margin-bottom:8mm;">Скачивание пока не разблокировано</div>
-        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там есть варианты: поделиться постом или просто подождать. Выбирай, что удобнее.</div>
+        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 1 идею в резюме и нажми «Скачать PDF» — там есть варианты: поделиться постом или просто подождать. Выбирай, что удобнее.</div>
       </div>`;
   }
   bonusBubble.classList.remove('open');
@@ -1130,7 +1130,7 @@ window.addEventListener('afterprint', ()=>{
   if(isUnlocked()) showBonusBubble();
 });
 ctaLock.addEventListener('click', ()=>{
-  if(added.length < 2) return;
+  if(added.length < 1) return;
   if(isUnlocked()){ showPrePrintInstruction(); }
   else { openUnlockModal(); }
 });
