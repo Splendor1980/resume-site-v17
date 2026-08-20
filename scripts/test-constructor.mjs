@@ -88,8 +88,12 @@ const aboutVal = await page.locator('.sheet textarea[data-profile-textarea="abou
 const expVal = await page.locator('.sheet textarea[data-profile-textarea="exp"]').inputValue();
 if (!aboutVal || !expVal) fail('v5 author fields empty (about/exp)');
 if (aboutVal.includes('—') === false && expVal.includes('—') === false) fail('author variants look like plain lists');
-console.log('sample about:', aboutVal.split('\n')[0].slice(0, 90));
-console.log('sample exp  :', expVal.split('\n')[0].slice(0, 90));
+const ab0 = aboutVal.split('\n')[0];
+const ex0 = expVal.split('\n')[0];
+if (ab0.trim().startsWith('Много играю') || ex0.trim().startsWith('На регулярной основе играю'))
+  fail('incoming "hobby" voice leaked into resume (about/exp should be skill-framed after skip fix)');
+console.log('sample about:', ab0.slice(0, 90));
+console.log('sample exp  :', ex0.slice(0, 90));
 console.log('v5 author variants in resume: OK');
 console.log('chat mode: OK');
 

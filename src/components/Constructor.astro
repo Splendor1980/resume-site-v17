@@ -740,9 +740,13 @@ function renderRoleResult(){
 function aboutTextFrom(list){
   /* v5 базы: у каждой записи есть авторские варианты «О себе» (about_variants).
      Берём вариант по индексу в списке (по модулю длины), чтобы соседние идеи
-     в одном резюме не звучали одинаково. Комментарий гипотетического «ИИ» не используется. */
+     в одном резюме не звучали одинаково. Комментарий гипотетического «ИИ» не используется.
+     Варианты из about_variants_skip исключаются из ротации (входящая «хобби»-подача,
+     несовместимая с концепцией «я развиваю навыки»); если после исключения пул пуст
+     или отсутствует — используется about_snippet (v4, навык-подача). */
   const out = list.map((a, i) => {
-    const v = a.about_variants || [];
+    const skip = a.about_variants_skip || [];
+    const v = (a.about_variants || []).filter((_, idx) => !skip.includes(idx));
     if(v.length) return v[i % v.length];
     return a.about_snippet;
   }).filter(Boolean).slice(0,3);
@@ -754,8 +758,10 @@ function aboutTextFrom(list){
 }
 function expLineFrom(item, i){
   /* v5: используем авторские варианты проектного опыта вместо буллета — по индексу,
-     чтобы соседние идеи не повторяли одни и те же обороты. */
-  const v = item.experience_variants || [];
+     чтобы соседние идеи не повторяли одни и те же обороты. experience_variants_skip
+     исключает варианты с входящей «хобби»-подачей; пустой пул → resume_bullet (v4). */
+  const skip = item.experience_variants_skip || [];
+  const v = (item.experience_variants || []).filter((_, idx) => !skip.includes(idx));
   if(v.length) return v[(i || 0) % v.length];
   return item.resume_bullet || `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
 }
