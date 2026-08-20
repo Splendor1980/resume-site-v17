@@ -2,6 +2,7 @@
 // Просто: npm run build, потом npm run test:e2e   (сервер поднимет scripts/run-e2e.mjs).
 // Или вручную: npx astro preview --port 4321, потом BASE_URL=http://localhost:4321 node scripts/test-constructor.mjs
 import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:4321';
 
@@ -9,6 +10,42 @@ function fail(msg) {
   console.log('FAIL: ' + msg);
   process.exit(1);
 }
+
+// ---- данные: гвард «навык»-подачи ----
+// Каждая запись держит 2+2 авторских варианта; часть помечена *_variants_skip как
+// «хобби»-подача вне концепции «я развиваю навыки». В выживших вариантах не должно быть
+// хобби-идентичностей и досуговых глаголов в субъектной позиции.
+const IDEAS = JSON.parse(readFileSync('data/ideas.json', 'utf8'));
+const STRONG_HOBBY = [
+  /моя вторая жизнь/i, /моя стихия/i, /моё место силы/i, /мой досуг/i,
+  /моё увлечение/i, /моя любовь/i, /моя страсть/i, /обожаю/i, /мне нравится/i,
+  /не могу не/i, /для души/i, /в своё удовольствие/i,
+  /^(Обожаю|Люблю|Живу|Увлекаюсь|Играю|Смотрю|Читаю|Наслаждаюсь)\s/i,
+  /^(Много|Постоянно|Часто)\s(играю|смотрю|люблю|обожаю)\s/i,
+];
+let dataGuardErrors = 0;
+for (const it of IDEAS.items) {
+  const pairs = [
+    ['about', it.about_variants || [], it.about_variants_skip || []],
+    ['exp', it.experience_variants || [], it.experience_variants_skip || []],
+  ];
+  for (const [f, arr, skip] of pairs) {
+    const badIdx = skip.filter(i => i >= arr.length);
+    if (badIdx.length) fail(`${it.id} ${f}_variants_skip out of range: ${badIdx}`);
+    if (arr.length && skip.length === arr.length) fail(`${it.id} ${f}: all variants skipped (empty pool)`);
+    arr.forEach((t, i) => {
+      if (skip.includes(i)) return;
+      for (const re of STRONG_HOBBY) {
+        if (re.test(t)) {
+          dataGuardErrors++;
+          console.log(`[data-guard] ${it.id} ${f}[${i}] ${re} :: ${t}`);
+        }
+      }
+    });
+  }
+}
+if (dataGuardErrors) fail('hobby voice leaked into surviving variants (' + dataGuardErrors + ')');
+console.log('data guard (навык-подача): OK');
 
 const browser = await chromium.launch();
 const context = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'], viewport: { width: 1440, height: 900 } });
