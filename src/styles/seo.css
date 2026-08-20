@@ -216,4 +216,43 @@ img { max-width: 100%; }
   .site-nav { flex-wrap: wrap; }
   .idea-facts { gap: 14px; }
   .fact-kv { flex-direction: column; gap: 2px; }
+
+  /* ---------- тап-таргеты ≥44px на телефонах ---------- */
+  .site-nav-links a {
+    font-size: 14px;
+    padding: 11px 14px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .site-brand {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .cta-btn {
+    min-height: 48px;
+    padding: 12px 18px;
+  }
+  .hero-actions a,
+  .hero-actions button {
+    min-height: 48px;
+  }
+  .mini-card { padding: 14px 15px; }
+  .mini-card .mc-title { font-size: 16px; }
+  .list-row { padding: 13px 14px; }
+  .example-chip { padding: 8px 13px; }
+  .idea-panel { padding: 18px 18px; }
+  .idea-cta a { min-height: 48px; }
+  .footer-inner .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 2px;
+  }
 }
