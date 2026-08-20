@@ -104,6 +104,8 @@
   .pv-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
   .pv-vk-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; text-decoration:none; color:inherit;}
   .pv-vk-btn:hover{background:var(--paper2);}
+  .pv-dzen-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; text-decoration:none; color:inherit;}
+  .pv-dzen-btn:hover{background:var(--paper2);}
   .post-link-input{width:100%; font-family:'Manrope',sans-serif; font-size:13px; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--white); margin-bottom:10px;}
   .unlock-confirm-btn{width:100%; font-family:'Manrope',sans-serif; font-weight:700; font-size:13.5px; background:var(--coral); color:#fff; border:none; border-radius:8px; padding:12px; cursor:pointer;}
   .unlock-confirm-btn:hover{background:var(--coral-deep);}
@@ -1134,6 +1136,7 @@ function renderPostVariants(){
       <div class="pv-actions">
         <button class="pv-copy-btn" data-idx="${i}">📋 Скопировать</button>
         <a class="pv-vk-btn" href="${shareUrl}" target="_blank" rel="noopener">ВКонтакте</a>
+        <a class="pv-dzen-btn" href="https://dzen.ru/" target="_blank" rel="noopener">Дзен</a>
       </div>
     </div>`).join('');
   postVariantsEl.querySelectorAll('.pv-copy-btn').forEach(btn=>{
